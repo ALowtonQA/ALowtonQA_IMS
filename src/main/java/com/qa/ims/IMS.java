@@ -27,7 +27,7 @@ public class IMS {
 	public void imsSystem() {
 		LOGGER.info("Welcome to the Inventory Management System!");
 		DBUtils.connect();
-
+		
 		Domain domain = null;
 		do {
 			LOGGER.info("Which entity would you like to use?");
@@ -59,7 +59,7 @@ public class IMS {
 				break;
 			}
 
-			LOGGER.info(() ->"What would you like to do with " + domain.name().toLowerCase() + ":");
+			LOGGER.info("What would you like to do with " + domain.name().toLowerCase() + ":");
 
 			Action.printActions();
 			Action action = Action.getAction(utils);

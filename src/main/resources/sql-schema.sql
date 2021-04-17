@@ -1,4 +1,4 @@
-drop schema ims;
+drop schema IF EXISTS ims;
 
 CREATE SCHEMA IF NOT EXISTS `ims`;
 
@@ -10,3 +10,4 @@ CREATE TABLE IF NOT EXISTS `ims`.`customers` (
     `surname` VARCHAR(40) DEFAULT NULL,
     PRIMARY KEY (`id`)
 );
+
