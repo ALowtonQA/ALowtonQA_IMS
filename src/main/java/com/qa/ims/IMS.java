@@ -7,10 +7,12 @@ import com.qa.ims.controller.Action;
 import com.qa.ims.controller.CrudController;
 import com.qa.ims.controller.CustomerController;
 import com.qa.ims.controller.ItemController;
+import com.qa.ims.controller.OrderAction;
 import com.qa.ims.controller.OrderController;
 import com.qa.ims.persistence.dao.CustomerDAO;
 import com.qa.ims.persistence.dao.ItemDAO;
 import com.qa.ims.persistence.dao.OrderDAO;
+import com.qa.ims.persistence.dao.OrderItemDAO;
 import com.qa.ims.persistence.domain.Domain;
 import com.qa.ims.utils.DBUtils;
 import com.qa.ims.utils.Utils;
@@ -27,10 +29,11 @@ public class IMS {
 	public IMS() {
 		this.utils = new Utils();
 		final CustomerDAO custDAO = new CustomerDAO();
+		final OrderItemDAO oiDAO = new OrderItemDAO();
 		final OrderDAO orderDAO = new OrderDAO();
 		final ItemDAO itemDAO = new ItemDAO();
 		this.customers = new CustomerController(custDAO, utils);
-		this.orders = new OrderController(orderDAO, utils);
+		this.orders = new OrderController(orderDAO, oiDAO, utils);
 		this.items = new ItemController(itemDAO, utils);
 	}
 
@@ -70,16 +73,29 @@ public class IMS {
 			default:
 				break;
 			}
-
-			LOGGER.info("What would you like to do with " + domain.name().toLowerCase() + ":");
-
-			Action.printActions();
-			Action action = Action.getAction(utils);
-
-			if (action == Action.RETURN) {
-				changeDomain = true;
+			
+			String curr = domain.name();
+			
+			LOGGER.info("What would you like to do with " + curr.toLowerCase() + ":");
+			
+			if (curr == "ORDER") {
+				OrderAction.printActions();
+				OrderAction action = OrderAction.getAction(utils);
+				
+				if (action == OrderAction.RETURN) {
+					changeDomain = true;
+				} else {
+					doOrderAction(this.orders, action);
+				}
 			} else {
-				doAction(active, action);
+				Action.printActions();
+				Action action = Action.getAction(utils);
+				
+				if (action == Action.RETURN) {
+					changeDomain = true;
+				} else {
+					doAction(active, action);
+				}
 			}
 		} while (!changeDomain);
 	}
@@ -105,4 +121,36 @@ public class IMS {
 		}
 	}
 
+	public void doOrderAction(OrderController oc, OrderAction action) {
+		switch (action) {
+		case CREATE:
+			oc.create();
+			break;
+		case READ:
+			oc.readAll();
+			break;
+		case UPDATE:
+			oc.update();
+			break;
+		case DELETE:
+			oc.delete();
+			break;
+		case ADD:
+			oc.addItem();
+			break;
+		case ITEMS:
+			oc.orderItems();
+			break;
+		case REMOVE:
+			oc.removeItem();
+			break;
+		case TOTAL:
+			oc.orderCost();
+			break;
+		case RETURN:
+			break;
+		default:
+			break;
+		}
+	}
 }

@@ -51,7 +51,7 @@ public class ItemDAO implements Dao<Item> {
 	public Item readLatest() {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery("SELECT * FROM items ORDER BY id DESC LIMIT 1");) {
+				ResultSet resultSet = statement.executeQuery("SELECT * FROM items ORDER BY id DESC LIMIT 1")) {
 			resultSet.next();
 			return modelFromResultSet(resultSet);
 		} catch (Exception e) {
@@ -87,7 +87,7 @@ public class ItemDAO implements Dao<Item> {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement("SELECT * FROM items WHERE id = ?")) {
 			statement.setLong(1, id);
-			try (ResultSet resultSet = statement.executeQuery();) {
+			try (ResultSet resultSet = statement.executeQuery()) {
 				resultSet.next();
 				return modelFromResultSet(resultSet);
 			}

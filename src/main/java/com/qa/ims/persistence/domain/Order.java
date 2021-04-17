@@ -1,5 +1,6 @@
 package com.qa.ims.persistence.domain;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Order {
@@ -7,6 +8,7 @@ public class Order {
     private Long id;
 	private Long customerId;
 	private Date date;
+	private Double total;
 	
 	public Order(Long customerId) {
 		this.setCustomerId(customerId);
@@ -21,6 +23,13 @@ public class Order {
 		this.setId(id);
 		this.setCustomerId(customerId);
 		this.setDate(date);
+	}
+	
+	public Order(Long id, Long customerId, Date date, double total) {
+		this.setId(id);
+		this.setCustomerId(customerId);
+		this.setDate(date);
+		this.setTotal(total);
 	}
 	
 	public Long getId() {
@@ -47,9 +56,21 @@ public class Order {
 		this.date = date;
 	}
 	
+	public Double getTotal() {
+		return total;
+	}
+
+	public void setTotal(double total) {
+		this.total = total;
+	}
+	
 	@Override
 	public String toString() {
-		return "id: " + id + " customer id: " + customerId + " date: " + date;
+		SimpleDateFormat fmt = new SimpleDateFormat("EEE MMM dd H:mmaa");
+		String datefmt = fmt.format(date);
+		return (total == null)?
+			String.format("id: %s customer id: %s date: %s", id, customerId, datefmt):
+			String.format("id: %s customer id: %s date: %s total: %s", id, customerId, datefmt, total);
 	}
 
 	@Override
@@ -59,6 +80,7 @@ public class Order {
 		result = prime * result + ((customerId == null) ? 0 : customerId.hashCode());
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((total == null) ? 0 : total.hashCode());
 		return result;
 	}
 
@@ -86,6 +108,11 @@ public class Order {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
+		if (total == null) {
+			if (other.total != null)
+				return false;
+		} else if (!total.equals(other.total))
+			return false;
 		return true;
-	}	
+	}
 }

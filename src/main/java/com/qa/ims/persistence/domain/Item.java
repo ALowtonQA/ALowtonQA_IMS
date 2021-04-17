@@ -4,7 +4,7 @@ public class Item {
 
 	private Long id;
 	private String itemName;
-	private double price;
+	private Double price;
 
 	public Item(String itemName, double price) {
 		this.setItemName(itemName);
@@ -33,7 +33,7 @@ public class Item {
 		this.itemName = itemName;
 	}
 
-	public double getPrice() {
+	public Double getPrice() {
 		return price;
 	}
 
@@ -52,9 +52,7 @@ public class Item {
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((itemName == null) ? 0 : itemName.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(price);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((price == null) ? 0 : price.hashCode());
 		return result;
 	}
 
@@ -77,7 +75,10 @@ public class Item {
 				return false;
 		} else if (!itemName.equals(other.itemName))
 			return false;
-		if (Double.doubleToLongBits(price) != Double.doubleToLongBits(other.price))
+		if (price == null) {
+			if (other.price != null)
+				return false;
+		} else if (!price.equals(other.price))
 			return false;
 		return true;
 	}
