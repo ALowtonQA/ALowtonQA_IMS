@@ -22,11 +22,18 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	public OrderItem modelFromResultSet(ResultSet resultSet) throws SQLException {
 		Long id = resultSet.getLong("id");
 		Long orderId = resultSet.getLong("order_id");
-		Long itemId = resultSet.getLong("item_id");
+		String itemName = resultSet.getString("item_name");
 		Long quantity = resultSet.getLong("quantity");
-		return new OrderItem(id, orderId, itemId, quantity);
+		return new OrderItem(id, orderId, itemName, quantity);
 	}
 
+	public OrderItem modelForSpecificOrder(ResultSet resultSet) throws SQLException {
+		Long id = resultSet.getLong("id");
+		String itemName = resultSet.getString("item_name");
+		Long quantity = resultSet.getLong("quantity");
+		return new OrderItem(id, itemName, quantity);
+	}
+	
 	/**
 	 * Reads all order_items from the database
 	 * 
@@ -36,7 +43,12 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	public List<OrderItem> readAll() {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery("SELECT * FROM order_items")) {
+				ResultSet resultSet = statement.executeQuery(
+						"SELECT oi.id, i.item_name as item_name, quantity"
+							+ " FROM order_items AS oi"
+							+ "	INNER JOIN items AS i"
+							+ " ON oi.item_id = i.id"
+							+ " ORDER BY id")) {
 			List<OrderItem> order_items = new ArrayList<>();
 			while (resultSet.next()) {
 				order_items.add(modelFromResultSet(resultSet));
@@ -48,7 +60,6 @@ public class OrderItemDAO implements Dao<OrderItem> {
 		}
 		return new ArrayList<>();
 	}
-	
 	/**
 	 * Reads all order_items from the database
 	 * based on a specific order Id.
@@ -57,13 +68,18 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	 */
 	public List<OrderItem> readAll(Long orderId) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.
-						prepareStatement("SELECT * FROM order_items WHERE order_id = ?")) {
+				PreparedStatement statement = connection.prepareStatement(
+					"SELECT oi.id, i.item_name as item_name, quantity"
+						+" FROM order_items AS oi"
+						+" INNER JOIN items AS i"
+						+" ON oi.item_id = i.id"
+						+" WHERE oi.order_id = ?"
+						+" ORDER BY id")) {
 			statement.setLong(1, orderId);
 			ResultSet resultSet = statement.executeQuery();
 			List<OrderItem> orderItems = new ArrayList<>();
 			while (resultSet.next()) {
-				orderItems.add(modelFromResultSet(resultSet));
+				orderItems.add(modelForSpecificOrder(resultSet));
 			}
 			return orderItems;
 		} catch (SQLException e) {
@@ -76,9 +92,14 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	public OrderItem readLatest() {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery("SELECT * FROM order_items ORDER BY id DESC LIMIT 1")) {
+				ResultSet resultSet = statement.executeQuery(
+						"SELECT oi.id, i.item_name as item_name, quantity"
+								+" FROM order_items AS oi"
+								+" INNER JOIN items AS i"
+								+" ON oi.item_id = i.id"
+								+" ORDER BY oi.id DESC LIMIT 1")) {
 			resultSet.next();
-			return modelFromResultSet(resultSet);
+			return modelForSpecificOrder(resultSet);
 		} catch (Exception e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
@@ -111,7 +132,12 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	@Override
 	public OrderItem read(Long id) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("SELECT * FROM order_items WHERE id = ?")) {
+				PreparedStatement statement = connection.prepareStatement(
+						"SELECT oi.id, oi.order_id, i.item_name as item_name, quantity"
+								+" FROM order_items AS oi"
+								+" INNER JOIN items AS i"
+								+" ON oi.item_id = i.id"
+								+" WHERE oi.order_id = ?")) {
 			statement.setLong(1, id);
 			try (ResultSet resultSet = statement.executeQuery()) {
 				resultSet.next();
@@ -123,7 +149,6 @@ public class OrderItemDAO implements Dao<OrderItem> {
 		}
 		return null;
 	}
-
 	/**
 	 * Updates a order in the database
 	 * 
@@ -148,7 +173,6 @@ public class OrderItemDAO implements Dao<OrderItem> {
 		}
 		return null;
 	}
-
 	/**
 	 * Deletes a order in the database
 	 * 

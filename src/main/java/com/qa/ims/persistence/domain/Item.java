@@ -43,7 +43,7 @@ public class Item {
 	
 	@Override
 	public String toString() {
-		return "id: " + id + " item name: " + itemName + " price: " + price;
+		return String.format("|Item ID   |%s%n|Item Name |%s%n|Price     |%s", id, itemName, price);
 	}
 
 	@Override

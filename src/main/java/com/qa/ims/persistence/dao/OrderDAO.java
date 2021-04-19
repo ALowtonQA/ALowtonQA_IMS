@@ -23,19 +23,19 @@ public class OrderDAO implements Dao<Order> {
 	@Override
 	public Order modelFromResultSet(ResultSet resultSet) throws SQLException {
 		Long id = resultSet.getLong("id");
-		Long customerId = resultSet.getLong("cust_id");
+		String customerName = resultSet.getString("customer");
 		Timestamp timestamp = resultSet.getTimestamp("date");
 		Date date = new Date(timestamp.getTime());
-		return new Order(id, customerId, date);
+		return new Order(id, customerName, date);
 	}
 
 	public Order modelTotalCost(ResultSet resultSet) throws SQLException {
 		Long id = resultSet.getLong("id");
-		Long customerId = resultSet.getLong("cust_id");
+		String customerName = resultSet.getString("customer");
 		Timestamp timestamp = resultSet.getTimestamp("date");
 		Date date = new Date(timestamp.getTime());
 		double total = resultSet.getDouble("total_price");
-		return new Order(id, customerId, date, total);
+		return new Order(id, customerName, date, total);
 	}	
 	
 	/**
@@ -47,7 +47,12 @@ public class OrderDAO implements Dao<Order> {
 	public List<Order> readAll() {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery("SELECT * FROM orders")) {
+				ResultSet resultSet = statement.executeQuery(
+						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
+						+ "FROM orders AS o"
+						+ "	INNER JOIN customers AS c"
+						+ " ON o.cust_id = c.id"
+						+ " ORDER BY id")) {
 			List<Order> orders = new ArrayList<>();
 			while (resultSet.next()) {
 				orders.add(modelFromResultSet(resultSet));
@@ -63,7 +68,12 @@ public class OrderDAO implements Dao<Order> {
 	public Order readLatest() {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery("SELECT * FROM orders ORDER BY id DESC LIMIT 1")) {
+				ResultSet resultSet = statement.executeQuery(
+						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
+								+ "FROM orders AS o"
+								+ "	INNER JOIN customers AS c"
+								+ " ON o.cust_id = c.id"
+								+ " ORDER BY id DESC LIMIT 1")) {
 			resultSet.next();
 			return modelFromResultSet(resultSet);
 		} catch (Exception e) {
@@ -96,7 +106,12 @@ public class OrderDAO implements Dao<Order> {
 	@Override
 	public Order read(Long id) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("SELECT * FROM orders WHERE id = ?")) {
+				PreparedStatement statement = connection.prepareStatement(
+						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
+							+ "FROM orders AS o"
+							+ "	INNER JOIN customers AS c"
+							+ " ON o.cust_id = c.id"
+							+ " WHERE o.id = ?")) {
 			statement.setLong(1, id);
 			try (ResultSet resultSet = statement.executeQuery()) {
 				resultSet.next();
@@ -153,8 +168,10 @@ public class OrderDAO implements Dao<Order> {
 	public Order totalCost(Long id) {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				PreparedStatement statement = connection.prepareStatement(
-						"SELECT o.id, o.cust_id, o.`date`, SUM(i.price * oi.quantity) as total_price"
+						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`, SUM(i.price * oi.quantity) as total_price"
 						+ " FROM orders as o"
+						+ "  INNER JOIN customers as c"
+						+ "  ON o.cust_id = c.id"
 						+ "	 INNER JOIN order_items as oi"
 						+ "	 ON o.id = oi.order_id"
 						+ "	 INNER JOIN items as i"

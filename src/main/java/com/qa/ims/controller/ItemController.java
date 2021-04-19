@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.qa.ims.persistence.dao.ItemDAO;
 import com.qa.ims.persistence.domain.Item;
+import com.qa.ims.utils.UI;
 import com.qa.ims.utils.Utils;
 
 /**
@@ -19,11 +20,13 @@ public class ItemController implements CrudController<Item> {
 
 	private ItemDAO itemDAO;
 	private Utils utils;
+	private UI ui;
 
-	public ItemController(ItemDAO ItemDAO, Utils utils) {
+	public ItemController(ItemDAO ItemDAO, UI ui, Utils utils) {
 //		super();
 		this.itemDAO = ItemDAO;
 		this.utils = utils;
+		this.ui = ui;
 	}
 
 	/**
@@ -31,11 +34,9 @@ public class ItemController implements CrudController<Item> {
 	 */
 	@Override
 	public List<Item> readAll() {
-		List<Item> Items = itemDAO.readAll();
-		for (Item item : Items) {
-			LOGGER.info(item);
-		}
-		return Items;
+		List<Item> items = itemDAO.readAll();
+		ui.displayDTOs(items);
+		return items;
 	}
 
 	/**
@@ -43,13 +44,13 @@ public class ItemController implements CrudController<Item> {
 	 */
 	@Override
 	public Item create() {
-		LOGGER.info("Please enter an item name");
-		String ItemName = utils.getString();
-		LOGGER.info("Please enter a price");
+		ui.fmtInput("Please enter an item name");
+		String itemName = utils.getString();
+		ui.fmtInput("Please enter a price");
 		double price = utils.getDouble();
-		Item Item = itemDAO.create(new Item(ItemName, price)); // Do something with return?
-		LOGGER.info("Item created"); // DO MORE HERE!
-		return Item;
+		Item item = itemDAO.create(new Item(itemName, price)); // Do something with return?
+		ui.fmtInput("Item created"); // DO MORE HERE!
+		return item;
 	}
 
 	/**
@@ -57,15 +58,16 @@ public class ItemController implements CrudController<Item> {
 	 */
 	@Override
 	public Item update() {
-		LOGGER.info("Please enter the id of the item you would like to update");
+		ui.fmtInput("Please enter an item ID to update");
 		Long id = utils.getLong();
-		LOGGER.info("Please enter an item name");
-		String ItemName = utils.getString();
-		LOGGER.info("Please enter a price");
+		ui.fmtInput("Please enter an item name");
+		String itemName = utils.getString();
+		ui.fmtInput("Please enter a price");
 		double price = utils.getDouble();
-		Item Item = itemDAO.update(new Item(id, ItemName, price)); // Do something with the return?
-		LOGGER.info("Item Updated");
-		return Item;
+		Item item = itemDAO.update(new Item(id, itemName, price)); // Do something with the return?
+		ui.fmtInput("Item Updated");
+		ui.displayDTO(item);
+		return item;
 	}
 
 	/**
@@ -75,9 +77,11 @@ public class ItemController implements CrudController<Item> {
 	 */
 	@Override
 	public int delete() {
-		LOGGER.info("Please enter the id of the item you would like to delete");
+		ui.fmtInput("Please enter an item ID to delete");
 		Long id = utils.getLong();
-		return itemDAO.delete(id);
+		int result = itemDAO.delete(id);
+		ui.fmtInput("Item successfully deleted.");
+		return result;
 	}
 
 }

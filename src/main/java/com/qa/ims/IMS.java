@@ -15,6 +15,7 @@ import com.qa.ims.persistence.dao.OrderDAO;
 import com.qa.ims.persistence.dao.OrderItemDAO;
 import com.qa.ims.persistence.domain.Domain;
 import com.qa.ims.utils.DBUtils;
+import com.qa.ims.utils.UI;
 import com.qa.ims.utils.Utils;
 
 public class IMS {
@@ -25,72 +26,60 @@ public class IMS {
 	private final OrderController orders;
 	private final ItemController items;
 	private final Utils utils;
+	private final UI ui;
 
 	public IMS() {
+		this.ui = new UI();
 		this.utils = new Utils();
 		final CustomerDAO custDAO = new CustomerDAO();
 		final OrderItemDAO oiDAO = new OrderItemDAO();
 		final OrderDAO orderDAO = new OrderDAO();
 		final ItemDAO itemDAO = new ItemDAO();
-		this.customers = new CustomerController(custDAO, utils);
-		this.orders = new OrderController(orderDAO, oiDAO, utils);
-		this.items = new ItemController(itemDAO, utils);
+		this.customers = new CustomerController(custDAO, ui, utils);
+		this.orders = new OrderController(orderDAO, oiDAO, ui, utils);
+		this.items = new ItemController(itemDAO, ui, utils);
 	}
 
 	public void imsSystem() {
-		LOGGER.info("Welcome to the Inventory Management System!");
-		DBUtils.connect();
-		
+		ui.welcome();
+		DBUtils.connect();	
 		Domain domain = null;
 		do {
-			LOGGER.info("Which entity would you like to use?");
-			Domain.printDomains();
-
-			domain = Domain.getDomain(utils);
-
+			domain = ui.selectDomain(utils);
 			domainAction(domain);
-
 		} while (domain != Domain.STOP);
+		ui.exit();
 	}
 
 	private void domainAction(Domain domain) {
 		boolean changeDomain = false;
 		do {
-
 			CrudController<?> active = null;
 			switch (domain) {
-			case CUSTOMER:
-				active = this.customers;
-				break;
-			case ITEM:
-				active = this.items;
-				break;
-			case ORDER:
-				active = this.orders;
-				break;
-			case STOP:
-				return;
-			default:
-				break;
+				case CUSTOMER:
+					active = this.customers;
+					break;
+				case ITEM:
+					active = this.items;
+					break;
+				case ORDER:
+					active = this.orders;
+					break;
+				case STOP:
+					return;
+				default:
+					break;
 			}
-			
-			String curr = domain.name();
-			
-			LOGGER.info("What would you like to do with " + curr.toLowerCase() + ":");
-			
-			if (curr == "ORDER") {
-				OrderAction.printActions();
-				OrderAction action = OrderAction.getAction(utils);
-				
+
+			if (domain == Domain.ORDER) {
+				OrderAction action = ui.selectOrderAction(utils);
 				if (action == OrderAction.RETURN) {
 					changeDomain = true;
 				} else {
 					doOrderAction(this.orders, action);
 				}
 			} else {
-				Action.printActions();
-				Action action = Action.getAction(utils);
-				
+				Action action = ui.selectAction(utils, domain.name());	
 				if (action == Action.RETURN) {
 					changeDomain = true;
 				} else {

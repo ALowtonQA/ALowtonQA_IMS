@@ -35,7 +35,7 @@ public class ItemDAO implements Dao<Item> {
 	public List<Item> readAll() {
 		try (Connection connection = DBUtils.getInstance().getConnection();
 				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery("SELECT * FROM items")) {
+				ResultSet resultSet = statement.executeQuery("SELECT * FROM items ORDER BY id")) {
 			List<Item> Items = new ArrayList<>();
 			while (resultSet.next()) {
 				Items.add(modelFromResultSet(resultSet));

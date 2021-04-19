@@ -43,7 +43,7 @@ public class Customer {
 
 	@Override
 	public String toString() {
-		return "id: " + id + " first name: " + firstName + " surname: " + surname;
+		return String.format("|ID         |%s%n|First Name |%s%n|Surname    |%s", id, firstName, surname);
 	}
 
 	@Override

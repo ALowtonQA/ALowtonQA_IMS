@@ -28,16 +28,54 @@ public class Utils {
 				input = getString();
 				longInput = Long.parseLong(input);
 			} catch (NumberFormatException nfe) {
-				LOGGER.info("Error - Please enter a number");
+				LOGGER.info(
+						"|=============================================|\n"
+						+ "|        Error - Please enter a number        |\n"
+						+ "|=============================================|"
+					);
 			}
 		} while (longInput == null);
 		return longInput;
 	}
 
 	public String getString() {
+		System.out.print("| INPUT: ");
 		return scanner.nextLine();
 	}
 
+	public String getYN() {
+		String input = null;
+		while (true) {
+			input = getString().toLowerCase();
+			if (input == "y" || input == "n") {
+				return input;
+			}
+			LOGGER.info(
+					"|=============================================|\n"
+					+ "|          Error - Input must be Y/N          |\n"
+					+ "|=============================================|"
+			);
+		}
+	}
+	
+	public int getInt() {
+		String input = null;
+		Integer intInput = null;
+		do {
+			try {
+				input = getString();
+				intInput = Integer.parseInt(input);
+			} catch (NumberFormatException nfe) {
+				LOGGER.info(
+					"|=============================================|\n"
+					+ "|        Error - Input must be a number       |\n"
+					+ "|=============================================|"
+				);
+			}
+		} while (intInput == null);
+		return intInput;
+	}
+	
 	public Double getDouble() {
 		String input = null;
 		Double doubleInput = null;

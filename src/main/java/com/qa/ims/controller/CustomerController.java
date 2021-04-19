@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.qa.ims.persistence.dao.CustomerDAO;
 import com.qa.ims.persistence.domain.Customer;
+import com.qa.ims.utils.UI;
 import com.qa.ims.utils.Utils;
 
 /**
@@ -19,10 +20,12 @@ public class CustomerController implements CrudController<Customer> {
 
 	private CustomerDAO customerDAO;
 	private Utils utils;
+	private UI ui;
 
-	public CustomerController(CustomerDAO customerDAO, Utils utils) {
+	public CustomerController(CustomerDAO customerDAO, UI ui, Utils utils) {
 //		super();
 		this.customerDAO = customerDAO;
+		this.ui = ui;
 		this.utils = utils;
 	}
 
@@ -32,9 +35,7 @@ public class CustomerController implements CrudController<Customer> {
 	@Override
 	public List<Customer> readAll() {
 		List<Customer> customers = customerDAO.readAll();
-		for (Customer customer : customers) {
-			LOGGER.info(customer);
-		}
+		ui.displayDTOs(customers);
 		return customers;
 	}
 
@@ -43,12 +44,12 @@ public class CustomerController implements CrudController<Customer> {
 	 */
 	@Override
 	public Customer create() {
-		LOGGER.info("Please enter a first name");
+		ui.fmtInput("Please enter a first name");
 		String firstName = utils.getString();
-		LOGGER.info("Please enter a surname");
+		ui.fmtInput("Please enter a surname");
 		String surname = utils.getString();
-		Customer customer = customerDAO.create(new Customer(firstName, surname)); // Do something with return?
-		LOGGER.info("Customer created"); // DO MORE HERE!
+		Customer customer = customerDAO.create(new Customer(firstName, surname)); 
+		ui.fmtInput("Customer created");
 		return customer;
 	}
 
@@ -57,14 +58,16 @@ public class CustomerController implements CrudController<Customer> {
 	 */
 	@Override
 	public Customer update() {
-		LOGGER.info("Please enter the id of the customer you would like to update");
+		// Add option to display customers before choosing an ID to update?
+		ui.fmtInput("Please enter a customer ID to update");
 		Long id = utils.getLong();
-		LOGGER.info("Please enter a first name");
+		ui.fmtInput("Please enter a first name");
 		String firstName = utils.getString();
-		LOGGER.info("Please enter a surname");
+		ui.fmtInput("Please enter a surname");
 		String surname = utils.getString();
-		Customer customer = customerDAO.update(new Customer(id, firstName, surname)); // Do something with the return?
-		LOGGER.info("Customer Updated");
+		Customer customer = customerDAO.update(new Customer(id, firstName, surname));
+		ui.fmtInput("Customer Updated");
+		ui.displayDTO(customer);
 		return customer;
 	}
 
@@ -75,9 +78,11 @@ public class CustomerController implements CrudController<Customer> {
 	 */
 	@Override
 	public int delete() {
-		LOGGER.info("Please enter the id of the customer you would like to delete");
+		// Add option to display customers before choosing an ID to delete?
+		ui.fmtInput("Please enter a customer ID to delete");
 		Long id = utils.getLong();
-		return customerDAO.delete(id);
+		int result = customerDAO.delete(id);
+		ui.fmtInput("Customer successfully deleted.");
+		return result;
 	}
-
 }
