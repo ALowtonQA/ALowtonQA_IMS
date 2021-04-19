@@ -19,7 +19,8 @@ import com.qa.ims.utils.DBUtils;
 public class OrderDAO implements Dao<Order> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
-
+	private final Connection conn = DBUtils.getInstance().getConnection();
+	
 	@Override
 	public Order modelFromResultSet(ResultSet resultSet) throws SQLException {
 		Long id = resultSet.getLong("id");
@@ -45,8 +46,7 @@ public class OrderDAO implements Dao<Order> {
 	 */
 	@Override
 	public List<Order> readAll() {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				Statement statement = connection.createStatement();
+		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery(
 						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
 						+ "FROM orders AS o"
@@ -66,8 +66,7 @@ public class OrderDAO implements Dao<Order> {
 	}
 
 	public Order readLatest() {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				Statement statement = connection.createStatement();
+		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery(
 						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
 								+ "FROM orders AS o"
@@ -90,8 +89,7 @@ public class OrderDAO implements Dao<Order> {
 	 */
 	@Override
 	public Order create(Order order) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection
+		try (PreparedStatement statement = conn
 						.prepareStatement("INSERT INTO orders(cust_id) VALUES (?)")) {
 			statement.setLong(1, order.getCustomerId());
 			statement.executeUpdate();
@@ -105,8 +103,7 @@ public class OrderDAO implements Dao<Order> {
 
 	@Override
 	public Order read(Long id) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(
+		try (PreparedStatement statement = conn.prepareStatement(
 						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
 							+ "FROM orders AS o"
 							+ "	INNER JOIN customers AS c"
@@ -133,8 +130,7 @@ public class OrderDAO implements Dao<Order> {
 	 */
 	@Override
 	public Order update(Order order) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection
+		try (PreparedStatement statement = conn
 						.prepareStatement("UPDATE orders SET cust_id = ? WHERE id = ?")) {
 			statement.setLong(1, order.getCustomerId());
 			statement.setLong(2, order.getId());
@@ -154,8 +150,7 @@ public class OrderDAO implements Dao<Order> {
 	 */
 	@Override
 	public int delete(long id) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("DELETE FROM orders WHERE id = ?")) {
+		try (PreparedStatement statement = conn.prepareStatement("DELETE FROM orders WHERE id = ?")) {
 			statement.setLong(1, id);
 			return statement.executeUpdate();
 		} catch (Exception e) {
@@ -166,8 +161,7 @@ public class OrderDAO implements Dao<Order> {
 	}
 	
 	public Order totalCost(Long id) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(
+		try (PreparedStatement statement = conn.prepareStatement(
 						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`, SUM(i.price * oi.quantity) as total_price"
 						+ " FROM orders as o"
 						+ "  INNER JOIN customers as c"

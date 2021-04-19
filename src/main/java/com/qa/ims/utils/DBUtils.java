@@ -18,11 +18,12 @@ public class DBUtils {
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	private final String dbUrl;
-
 	private final String dbUser;
-
 	private final String dbPassword;
-
+	private final Connection conn;
+	
+	private static DBUtils instance;
+	
 	private DBUtils(String properties) {
 		Properties dbProps = new Properties();
 		try (InputStream fis = ClassLoader.getSystemResourceAsStream(properties)) {
@@ -33,9 +34,10 @@ public class DBUtils {
 		this.dbUrl = dbProps.getProperty("db.url", "");
 		this.dbUser = dbProps.getProperty("db.user", "");
 		this.dbPassword = dbProps.getProperty("db.password", "");
+		this.conn = makeConnection();
 	}
 
-	public DBUtils() {
+	private DBUtils() {
 		this("db.properties");
 	}
 
@@ -51,12 +53,11 @@ public class DBUtils {
 
 	public int executeSQLFile(String file) {
 		int modified = 0;
-		try (Connection connection = this.getConnection();
-				BufferedReader br = new BufferedReader(new FileReader(file));) {
+		try (BufferedReader br = new BufferedReader(new FileReader(file));) {
 			String fileAsString = br.lines().reduce((acc, next) -> acc + next).orElse("");
 			String[] queries = fileAsString.split(";");
 			modified += Stream.of(queries).map(string -> {
-				try (Statement statement = connection.createStatement();) {
+				try (Statement statement = conn.createStatement();) {
 					return statement.executeUpdate(string);
 				} catch (Exception e) {
 					LOGGER.debug(e);
@@ -69,12 +70,27 @@ public class DBUtils {
 		return modified;
 	}
 
-	public Connection getConnection() throws SQLException {
-		return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+	public Connection makeConnection() {
+		try {
+			return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+		} catch (SQLException e) {
+			LOGGER.debug(e);
+			return null;
+		}
 	}
 
-	private static DBUtils instance;
-
+	public Connection getConnection() {
+		return this.conn;
+	}
+	
+	public static void closeConnection() {
+		try {
+			instance.conn.close();
+		} catch (SQLException e) {
+			LOGGER.debug(e);
+		}
+	}
+	
 	public static DBUtils connect() {
 		instance = new DBUtils();
 		return instance;
@@ -91,5 +107,4 @@ public class DBUtils {
 		}
 		return instance;
 	}
-
 }

@@ -17,7 +17,8 @@ import com.qa.ims.utils.DBUtils;
 public class OrderItemDAO implements Dao<OrderItem> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
-
+	private final Connection conn = DBUtils.getInstance().getConnection();
+	
 	@Override
 	public OrderItem modelFromResultSet(ResultSet resultSet) throws SQLException {
 		Long id = resultSet.getLong("id");
@@ -41,8 +42,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	 */
 	@Override
 	public List<OrderItem> readAll() {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				Statement statement = connection.createStatement();
+		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery(
 						"SELECT oi.id, i.item_name as item_name, quantity"
 							+ " FROM order_items AS oi"
@@ -67,8 +67,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	 * @return A list of order_items
 	 */
 	public List<OrderItem> readAll(Long orderId) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(
+		try (PreparedStatement statement = conn.prepareStatement(
 					"SELECT oi.id, i.item_name as item_name, quantity"
 						+" FROM order_items AS oi"
 						+" INNER JOIN items AS i"
@@ -90,8 +89,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	}
 	
 	public OrderItem readLatest() {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				Statement statement = connection.createStatement();
+		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery(
 						"SELECT oi.id, i.item_name as item_name, quantity"
 								+" FROM order_items AS oi"
@@ -114,8 +112,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	 */
 	@Override
 	public OrderItem create(OrderItem order) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection
+		try (PreparedStatement statement = conn
 						.prepareStatement("INSERT INTO order_items(order_id, item_id, quantity) VALUES (?, ?, ?)")) {
 			statement.setLong(1, order.getOrderId());
 			statement.setLong(2, order.getItemId());
@@ -131,8 +128,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 
 	@Override
 	public OrderItem read(Long id) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement(
+		try (PreparedStatement statement = conn.prepareStatement(
 						"SELECT oi.id, oi.order_id, i.item_name as item_name, quantity"
 								+" FROM order_items AS oi"
 								+" INNER JOIN items AS i"
@@ -158,8 +154,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	 */
 	@Override
 	public OrderItem update(OrderItem order) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection
+		try (PreparedStatement statement = conn
 						.prepareStatement("UPDATE order_items SET order_id = ?, item_id = ?, quantity = ? WHERE id = ?")) {
 			statement.setLong(1, order.getOrderId());
 			statement.setLong(2, order.getItemId());
@@ -180,8 +175,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	 */
 	@Override
 	public int delete(long id) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("DELETE FROM order_items WHERE id = ?")) {
+		try (PreparedStatement statement = conn.prepareStatement("DELETE FROM order_items WHERE id = ?")) {
 			statement.setLong(1, id);
 			return statement.executeUpdate();
 		} catch (Exception e) {

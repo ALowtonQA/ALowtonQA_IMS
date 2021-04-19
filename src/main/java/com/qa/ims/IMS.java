@@ -48,6 +48,7 @@ public class IMS {
 			domain = ui.selectDomain(utils);
 			domainAction(domain);
 		} while (domain != Domain.STOP);
+		DBUtils.closeConnection();
 		ui.exit();
 	}
 

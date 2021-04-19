@@ -17,6 +17,7 @@ import com.qa.ims.utils.DBUtils;
 public class CustomerDAO implements Dao<Customer> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
+	private final Connection conn = DBUtils.getInstance().getConnection();
 
 	@Override
 	public Customer modelFromResultSet(ResultSet resultSet) throws SQLException {
@@ -33,8 +34,7 @@ public class CustomerDAO implements Dao<Customer> {
 	 */
 	@Override
 	public List<Customer> readAll() {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				Statement statement = connection.createStatement();
+		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery("SELECT * FROM customers ORDER BY id")) {
 			List<Customer> customers = new ArrayList<>();
 			while (resultSet.next()) {
@@ -49,8 +49,7 @@ public class CustomerDAO implements Dao<Customer> {
 	}
 
 	public Customer readLatest() {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				Statement statement = connection.createStatement();
+		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery("SELECT * FROM customers ORDER BY id DESC LIMIT 1")) {
 			resultSet.next();
 			return modelFromResultSet(resultSet);
@@ -68,8 +67,7 @@ public class CustomerDAO implements Dao<Customer> {
 	 */
 	@Override
 	public Customer create(Customer customer) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection
+		try (PreparedStatement statement = conn
 						.prepareStatement("INSERT INTO customers(first_name, surname) VALUES (?, ?)")) {
 			statement.setString(1, customer.getFirstName());
 			statement.setString(2, customer.getSurname());
@@ -84,8 +82,7 @@ public class CustomerDAO implements Dao<Customer> {
 
 	@Override
 	public Customer read(Long id) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("SELECT * FROM customers WHERE id = ?")) {
+		try (PreparedStatement statement = conn.prepareStatement("SELECT * FROM customers WHERE id = ?")) {
 			statement.setLong(1, id);
 			try (ResultSet resultSet = statement.executeQuery()) {
 				resultSet.next();
@@ -107,8 +104,7 @@ public class CustomerDAO implements Dao<Customer> {
 	 */
 	@Override
 	public Customer update(Customer customer) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection
+		try (PreparedStatement statement = conn
 						.prepareStatement("UPDATE customers SET first_name = ?, surname = ? WHERE id = ?")) {
 			statement.setString(1, customer.getFirstName());
 			statement.setString(2, customer.getSurname());
@@ -129,8 +125,7 @@ public class CustomerDAO implements Dao<Customer> {
 	 */
 	@Override
 	public int delete(long id) {
-		try (Connection connection = DBUtils.getInstance().getConnection();
-				PreparedStatement statement = connection.prepareStatement("DELETE FROM customers WHERE id = ?")) {
+		try (PreparedStatement statement = conn.prepareStatement("DELETE FROM customers WHERE id = ?")) {
 			statement.setLong(1, id);
 			return statement.executeUpdate();
 		} catch (Exception e) {
