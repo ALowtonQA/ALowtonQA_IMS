@@ -41,7 +41,7 @@ public class Utils {
 		String input = null;
 		while (true) {
 			input = getString().toLowerCase();
-			if (input == "y" || input == "n") {
+			if (input.equals("y") || input.equals("n")) {
 				return input;
 			}
 			ui.fmtOutput("          Error - Input must be Y/N         |");

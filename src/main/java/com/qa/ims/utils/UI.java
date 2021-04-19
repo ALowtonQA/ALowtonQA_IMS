@@ -122,6 +122,13 @@ public class UI {
 		);
 	}
 	
+	public void fmtHeader(String output) {
+		LOGGER.info(
+			"|=============================================|"
+			+"\n| "+output
+		);
+	}
+	
 	public void displayDTO(Object result) {
 		LOGGER.info(
 				"|=============================================|\n"

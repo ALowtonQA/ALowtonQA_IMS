@@ -20,15 +20,19 @@ public class OrderController implements CrudController<Order> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
 
+	private final CustomerController cController;
+	private final ItemController iController;
 	private final OrderItemDAO orderItemDAO;
 	private final OrderDAO orderDAO;
 	private final Utils utils;
 	private final UI ui;
 	
-	public OrderController(OrderDAO OrderDAO, OrderItemDAO orderItemDAO, UI ui, Utils utils) {
+	public OrderController(OrderDAO oDAO, OrderItemDAO oIDAO, CustomerController cController, ItemController iController, UI ui, Utils utils) {
 //		super();
-		this.orderItemDAO = orderItemDAO;
-		this.orderDAO = OrderDAO;
+		this.cController = cController;
+		this.iController = iController;
+		this.orderItemDAO = oIDAO;
+		this.orderDAO = oDAO;
 		this.ui = ui;
 		this.utils = utils;
 	}
@@ -39,7 +43,7 @@ public class OrderController implements CrudController<Order> {
 	@Override
 	public List<Order> readAll() {
 		List<Order> orders = orderDAO.readAll();
-		ui.fmtOutput("               Active orders");
+		ui.fmtHeader("               Active orders                |");
 		ui.displayDTOs(orders);
 		return orders;
 	}
@@ -49,12 +53,12 @@ public class OrderController implements CrudController<Order> {
 	 */
 	@Override
 	public Order create() {
-		// some option here
-		// customer controller action here (read)
+		ui.fmtOutput("      Display existing customers?  Y/N      |");
+		if (utils.getYN().equals("y")) cController.readAll();
 		ui.fmtOutput("        Please enter a customer id");
 		Long customerId = utils.getLong();
-		Order order = orderDAO.create(new Order(customerId)); // Do something with return?
-		ui.fmtOutput("              Order created"); // DO MORE HERE!
+		Order order = orderDAO.create(new Order(customerId));
+		ui.fmtOutput("        Order successfully created          |");
 		return order;
 	}
 
@@ -63,13 +67,16 @@ public class OrderController implements CrudController<Order> {
 	 */
 	@Override
 	public Order update() {
-		readAll();
-		ui.fmtOutput("    Please enter an order ID to update");
+		ui.fmtOutput("        Display existing orders?  Y/N       |");
+		if (utils.getYN().equals("y")) readAll();
+		ui.fmtOutput("     Please enter an order ID to update     |");
 		Long id = utils.getLong();
-		ui.fmtOutput("        Please enter a customer id");
+		ui.fmtOutput("      Display existing customers?  Y/N      |");
+		if (utils.getYN().equals("y")) cController.readAll();
+		ui.fmtOutput("         Please enter a customer ID         |");
 		Long customerId = utils.getLong();
-		Order order = orderDAO.update(new Order(id, customerId)); // Maybe adjust date to current here?
-		ui.fmtOutput("               Order Updated");
+		Order order = orderDAO.update(new Order(id, customerId));
+		ui.fmtOutput("        Order successfully updated          |");
 		return order;
 	}
 
@@ -80,56 +87,59 @@ public class OrderController implements CrudController<Order> {
 	 */
 	@Override
 	public int delete() {
-		readAll();
-		ui.fmtOutput("    Please enter an order ID to delete");
+		ui.fmtOutput("        Display existing orders?  Y/N       |");
+		if (utils.getYN().equals("y")) readAll();
+		ui.fmtOutput("     Please enter an order ID to delete     |");
 		Long id = utils.getLong();
 		int result = orderDAO.delete(id);
-		ui.fmtOutput("        Order successfully deleted.");
+		ui.fmtOutput("        Order successfully deleted          |");
 		return result;
 	}
 	
 	public List<OrderItem> readAllOrderItems(Long orderId) {
 		List<OrderItem> items = orderItemDAO.readAll(orderId);
-		ui.fmtOutput("            Items in order #" + orderId);
+		ui.fmtHeader("             Items in order #" + orderId + "              |");
 		ui.displayDTOs(items);
 		return items;
 	}
 	
 	public List<OrderItem> addItem() {
-		readAll();
-		ui.fmtOutput("         Please enter an order id");
+		ui.fmtOutput("        Display existing orders?  Y/N       |");
+		if (utils.getYN().equals("y")) readAll();
+		ui.fmtOutput("         Please enter an order ID           |");
 		Long orderId = utils.getLong();
-		ui.fmtOutput("          Please enter an item id"); // Add choice to see items here?
+		ui.fmtOutput("        Display existing items?  Y/N        |");
+		if (utils.getYN().equals("y")) iController.readAll();
+		ui.fmtOutput("          Please enter an item ID           |");
 		Long itemId = utils.getLong();
-		ui.fmtOutput("          Please enter a quantity");
+		ui.fmtOutput("          Please enter a quantity           |");
 		Long quantity = utils.getLong();
-		orderItemDAO.create(new OrderItem(orderId, itemId, quantity)); // Do something with return?
-		ui.fmtOutput("           Item added to order"); // DO MORE HERE!
+		orderItemDAO.create(new OrderItem(orderId, itemId, quantity));
+		ui.fmtOutput("            Item added to order             |");
 		return orderItemDAO.readAll(orderId);
 	}
 	
 	public List<OrderItem> orderItems() {
-		readAll();
-		ui.fmtOutput("            Please enter an order id");
+		ui.fmtOutput("        Display existing orders?  Y/N       |");
+		if (utils.getYN().equals("y")) readAll();
+		ui.fmtOutput("          Please enter an order ID          |");
 		Long orderId = utils.getLong();
 		return readAllOrderItems(orderId);
 	}
 	
 	public int removeItem() {
-		readAll();
-		ui.fmtOutput("         Please enter an order id");
-		Long orderId = utils.getLong();
-		readAllOrderItems(orderId);
-		ui.fmtOutput("      Please enter an ID to delete");
+		orderItems();
+		ui.fmtOutput("        Please enter an ID to delete        |");
 		Long itemId = utils.getLong();
 		int result = orderItemDAO.delete(itemId);
-		ui.fmtOutput("        Item removed from order");
+		ui.fmtOutput("          Item removed from order           |");
 		return result;
 	}
 	
 	public void orderCost() {
-		readAll();
-		ui.fmtOutput("            Please enter an order id");
+		ui.fmtOutput("        Display existing orders?  Y/N       |");
+		if (utils.getYN().equals("y")) readAll();
+		ui.fmtOutput("          Please enter an order ID          |");
 		Long orderId = utils.getLong();
 		ui.displayDTO(orderDAO.totalCost(orderId));
 	}

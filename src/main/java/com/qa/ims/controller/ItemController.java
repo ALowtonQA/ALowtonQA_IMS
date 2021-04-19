@@ -35,6 +35,7 @@ public class ItemController implements CrudController<Item> {
 	@Override
 	public List<Item> readAll() {
 		List<Item> items = itemDAO.readAll();
+		ui.fmtHeader("                   Items                    |");
 		ui.displayDTOs(items);
 		return items;
 	}
@@ -44,12 +45,12 @@ public class ItemController implements CrudController<Item> {
 	 */
 	@Override
 	public Item create() {
-		ui.fmtOutput("Please enter an item name");
+		ui.fmtOutput("         Please enter an item name          |");
 		String itemName = utils.getString();
-		ui.fmtOutput("Please enter a price");
+		ui.fmtOutput("           Please enter a price             |");
 		double price = utils.getDouble();
-		Item item = itemDAO.create(new Item(itemName, price)); // Do something with return?
-		ui.fmtOutput("Item created"); // DO MORE HERE!
+		Item item = itemDAO.create(new Item(itemName, price));
+		ui.fmtOutput("         Item successfully created          |");
 		return item;
 	}
 
@@ -58,14 +59,16 @@ public class ItemController implements CrudController<Item> {
 	 */
 	@Override
 	public Item update() {
-		ui.fmtOutput("Please enter an item ID to update");
+		ui.fmtOutput("        Display existing items?  Y/N        |");
+		if (utils.getYN().equals("y")) readAll();
+		ui.fmtOutput("     Please enter an item ID to update      |");
 		Long id = utils.getLong();
-		ui.fmtOutput("Please enter an item name");
+		ui.fmtOutput("         Please enter an item name          |");
 		String itemName = utils.getString();
-		ui.fmtOutput("Please enter a price");
+		ui.fmtOutput("           Please enter a price             |");
 		double price = utils.getDouble();
-		Item item = itemDAO.update(new Item(id, itemName, price)); // Do something with the return?
-		ui.fmtOutput("Item Updated");
+		Item item = itemDAO.update(new Item(id, itemName, price));
+		ui.fmtOutput("         Item successfully updated          |");
 		ui.displayDTO(item);
 		return item;
 	}
@@ -77,10 +80,12 @@ public class ItemController implements CrudController<Item> {
 	 */
 	@Override
 	public int delete() {
-		ui.fmtOutput("Please enter an item ID to delete");
+		ui.fmtOutput("        Display existing items?  Y/N        |");
+		if (utils.getYN().equals("y")) readAll();
+		ui.fmtOutput("     Please enter an item ID to delete      |");
 		Long id = utils.getLong();
 		int result = itemDAO.delete(id);
-		ui.fmtOutput("Item successfully deleted.");
+		ui.fmtOutput("         Item successfully deleted          |");
 		return result;
 	}
 
