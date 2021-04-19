@@ -20,10 +20,10 @@ public class OrderController implements CrudController<Order> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
 
-	private OrderItemDAO orderItemDAO;
-	private OrderDAO orderDAO;
-	private Utils utils;
-	private UI ui;
+	private final OrderItemDAO orderItemDAO;
+	private final OrderDAO orderDAO;
+	private final Utils utils;
+	private final UI ui;
 	
 	public OrderController(OrderDAO OrderDAO, OrderItemDAO orderItemDAO, UI ui, Utils utils) {
 //		super();
@@ -39,7 +39,7 @@ public class OrderController implements CrudController<Order> {
 	@Override
 	public List<Order> readAll() {
 		List<Order> orders = orderDAO.readAll();
-		ui.fmtInput("               Active orders");
+		ui.fmtOutput("               Active orders");
 		ui.displayDTOs(orders);
 		return orders;
 	}
@@ -51,10 +51,10 @@ public class OrderController implements CrudController<Order> {
 	public Order create() {
 		// some option here
 		// customer controller action here (read)
-		ui.fmtInput("        Please enter a customer id");
+		ui.fmtOutput("        Please enter a customer id");
 		Long customerId = utils.getLong();
 		Order order = orderDAO.create(new Order(customerId)); // Do something with return?
-		ui.fmtInput("              Order created"); // DO MORE HERE!
+		ui.fmtOutput("              Order created"); // DO MORE HERE!
 		return order;
 	}
 
@@ -64,12 +64,12 @@ public class OrderController implements CrudController<Order> {
 	@Override
 	public Order update() {
 		readAll();
-		ui.fmtInput("    Please enter an order ID to update");
+		ui.fmtOutput("    Please enter an order ID to update");
 		Long id = utils.getLong();
-		ui.fmtInput("        Please enter a customer id");
+		ui.fmtOutput("        Please enter a customer id");
 		Long customerId = utils.getLong();
 		Order order = orderDAO.update(new Order(id, customerId)); // Maybe adjust date to current here?
-		ui.fmtInput("               Order Updated");
+		ui.fmtOutput("               Order Updated");
 		return order;
 	}
 
@@ -81,55 +81,55 @@ public class OrderController implements CrudController<Order> {
 	@Override
 	public int delete() {
 		readAll();
-		ui.fmtInput("    Please enter an order ID to delete");
+		ui.fmtOutput("    Please enter an order ID to delete");
 		Long id = utils.getLong();
 		int result = orderDAO.delete(id);
-		ui.fmtInput("        Order successfully deleted.");
+		ui.fmtOutput("        Order successfully deleted.");
 		return result;
 	}
 	
 	public List<OrderItem> readAllOrderItems(Long orderId) {
 		List<OrderItem> items = orderItemDAO.readAll(orderId);
-		ui.fmtInput("            Items in order #" + orderId);
+		ui.fmtOutput("            Items in order #" + orderId);
 		ui.displayDTOs(items);
 		return items;
 	}
 	
 	public List<OrderItem> addItem() {
 		readAll();
-		ui.fmtInput("         Please enter an order id");
+		ui.fmtOutput("         Please enter an order id");
 		Long orderId = utils.getLong();
-		ui.fmtInput("          Please enter an item id"); // Add choice to see items here?
+		ui.fmtOutput("          Please enter an item id"); // Add choice to see items here?
 		Long itemId = utils.getLong();
-		ui.fmtInput("          Please enter a quantity");
+		ui.fmtOutput("          Please enter a quantity");
 		Long quantity = utils.getLong();
 		orderItemDAO.create(new OrderItem(orderId, itemId, quantity)); // Do something with return?
-		ui.fmtInput("           Item added to order"); // DO MORE HERE!
+		ui.fmtOutput("           Item added to order"); // DO MORE HERE!
 		return orderItemDAO.readAll(orderId);
 	}
 	
 	public List<OrderItem> orderItems() {
 		readAll();
-		ui.fmtInput("            Please enter an order id");
+		ui.fmtOutput("            Please enter an order id");
 		Long orderId = utils.getLong();
 		return readAllOrderItems(orderId);
 	}
 	
 	public int removeItem() {
 		readAll();
-		ui.fmtInput("         Please enter an order id");
+		ui.fmtOutput("         Please enter an order id");
 		Long orderId = utils.getLong();
 		readAllOrderItems(orderId);
-		ui.fmtInput("      Please enter an ID to delete");
+		ui.fmtOutput("      Please enter an ID to delete");
 		Long itemId = utils.getLong();
 		int result = orderItemDAO.delete(itemId);
-		ui.fmtInput("        Item removed from order");
+		ui.fmtOutput("        Item removed from order");
 		return result;
 	}
 	
 	public void orderCost() {
 		readAll();
-		ui.fmtInput("            Please enter an order id");
+		ui.fmtOutput("            Please enter an order id");
 		Long orderId = utils.getLong();
 		ui.displayDTO(orderDAO.totalCost(orderId));
 	}

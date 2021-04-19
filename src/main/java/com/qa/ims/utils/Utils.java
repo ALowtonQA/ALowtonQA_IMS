@@ -2,22 +2,20 @@ package com.qa.ims.utils;
 
 import java.util.Scanner;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class Utils {
 	
-	private static final Logger LOGGER = LogManager.getLogger();
-
 	private final Scanner scanner;
-
-	public Utils(Scanner scanner) {
-		super();
+	private final UI ui;
+	
+	public Utils(Scanner scanner, UI ui) {
+//		super();
 		this.scanner = scanner;
+		this.ui = ui;
 	}
 
-	public Utils() {
-		scanner = new Scanner(System.in);
+	public Utils(UI ui) {
+		this.scanner = new Scanner(System.in);
+		this.ui = ui;
 	}
 
 	public Long getLong() {
@@ -28,11 +26,7 @@ public class Utils {
 				input = getString();
 				longInput = Long.parseLong(input);
 			} catch (NumberFormatException nfe) {
-				LOGGER.info(
-						"|=============================================|\n"
-						+ "|        Error - Please enter a number        |\n"
-						+ "|=============================================|"
-					);
+				ui.fmtOutput("       Error - Input must be a number       |");
 			}
 		} while (longInput == null);
 		return longInput;
@@ -50,11 +44,7 @@ public class Utils {
 			if (input == "y" || input == "n") {
 				return input;
 			}
-			LOGGER.info(
-					"|=============================================|\n"
-					+ "|          Error - Input must be Y/N          |\n"
-					+ "|=============================================|"
-			);
+			ui.fmtOutput("          Error - Input must be Y/N         |");
 		}
 	}
 	
@@ -66,11 +56,7 @@ public class Utils {
 				input = getString();
 				intInput = Integer.parseInt(input);
 			} catch (NumberFormatException nfe) {
-				LOGGER.info(
-					"|=============================================|\n"
-					+ "|        Error - Input must be a number       |\n"
-					+ "|=============================================|"
-				);
+				ui.fmtOutput("       Error - Input must be a number       |");
 			}
 		} while (intInput == null);
 		return intInput;
@@ -84,7 +70,7 @@ public class Utils {
 				input = getString();
 				doubleInput = Double.parseDouble(input);
 			} catch (NumberFormatException nfe) {
-				LOGGER.info("Error - Please enter a number");
+				ui.fmtOutput("       Error - Input must be a number       |");
 			}
 		} while (doubleInput == null);
 		return doubleInput;

@@ -18,9 +18,9 @@ public class ItemController implements CrudController<Item> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
 
-	private ItemDAO itemDAO;
-	private Utils utils;
-	private UI ui;
+	private final ItemDAO itemDAO;
+	private final Utils utils;
+	private final UI ui;
 
 	public ItemController(ItemDAO ItemDAO, UI ui, Utils utils) {
 //		super();
@@ -44,12 +44,12 @@ public class ItemController implements CrudController<Item> {
 	 */
 	@Override
 	public Item create() {
-		ui.fmtInput("Please enter an item name");
+		ui.fmtOutput("Please enter an item name");
 		String itemName = utils.getString();
-		ui.fmtInput("Please enter a price");
+		ui.fmtOutput("Please enter a price");
 		double price = utils.getDouble();
 		Item item = itemDAO.create(new Item(itemName, price)); // Do something with return?
-		ui.fmtInput("Item created"); // DO MORE HERE!
+		ui.fmtOutput("Item created"); // DO MORE HERE!
 		return item;
 	}
 
@@ -58,14 +58,14 @@ public class ItemController implements CrudController<Item> {
 	 */
 	@Override
 	public Item update() {
-		ui.fmtInput("Please enter an item ID to update");
+		ui.fmtOutput("Please enter an item ID to update");
 		Long id = utils.getLong();
-		ui.fmtInput("Please enter an item name");
+		ui.fmtOutput("Please enter an item name");
 		String itemName = utils.getString();
-		ui.fmtInput("Please enter a price");
+		ui.fmtOutput("Please enter a price");
 		double price = utils.getDouble();
 		Item item = itemDAO.update(new Item(id, itemName, price)); // Do something with the return?
-		ui.fmtInput("Item Updated");
+		ui.fmtOutput("Item Updated");
 		ui.displayDTO(item);
 		return item;
 	}
@@ -77,10 +77,10 @@ public class ItemController implements CrudController<Item> {
 	 */
 	@Override
 	public int delete() {
-		ui.fmtInput("Please enter an item ID to delete");
+		ui.fmtOutput("Please enter an item ID to delete");
 		Long id = utils.getLong();
 		int result = itemDAO.delete(id);
-		ui.fmtInput("Item successfully deleted.");
+		ui.fmtOutput("Item successfully deleted.");
 		return result;
 	}
 

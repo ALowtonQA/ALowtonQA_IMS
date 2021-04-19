@@ -30,7 +30,7 @@ public class IMS {
 
 	public IMS() {
 		this.ui = new UI();
-		this.utils = new Utils();
+		this.utils = new Utils(ui);
 		final CustomerDAO custDAO = new CustomerDAO();
 		final OrderItemDAO oiDAO = new OrderItemDAO();
 		final OrderDAO orderDAO = new OrderDAO();

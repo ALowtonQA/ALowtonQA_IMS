@@ -18,9 +18,9 @@ public class CustomerController implements CrudController<Customer> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
 
-	private CustomerDAO customerDAO;
-	private Utils utils;
-	private UI ui;
+	private final CustomerDAO customerDAO;
+	private final Utils utils;
+	private final UI ui;
 
 	public CustomerController(CustomerDAO customerDAO, UI ui, Utils utils) {
 //		super();
@@ -44,12 +44,12 @@ public class CustomerController implements CrudController<Customer> {
 	 */
 	@Override
 	public Customer create() {
-		ui.fmtInput("Please enter a first name");
+		ui.fmtOutput("Please enter a first name");
 		String firstName = utils.getString();
-		ui.fmtInput("Please enter a surname");
+		ui.fmtOutput("Please enter a surname");
 		String surname = utils.getString();
 		Customer customer = customerDAO.create(new Customer(firstName, surname)); 
-		ui.fmtInput("Customer created");
+		ui.fmtOutput("Customer created");
 		return customer;
 	}
 
@@ -59,14 +59,14 @@ public class CustomerController implements CrudController<Customer> {
 	@Override
 	public Customer update() {
 		// Add option to display customers before choosing an ID to update?
-		ui.fmtInput("Please enter a customer ID to update");
+		ui.fmtOutput("Please enter a customer ID to update");
 		Long id = utils.getLong();
-		ui.fmtInput("Please enter a first name");
+		ui.fmtOutput("Please enter a first name");
 		String firstName = utils.getString();
-		ui.fmtInput("Please enter a surname");
+		ui.fmtOutput("Please enter a surname");
 		String surname = utils.getString();
 		Customer customer = customerDAO.update(new Customer(id, firstName, surname));
-		ui.fmtInput("Customer Updated");
+		ui.fmtOutput("Customer Updated");
 		ui.displayDTO(customer);
 		return customer;
 	}
@@ -79,10 +79,10 @@ public class CustomerController implements CrudController<Customer> {
 	@Override
 	public int delete() {
 		// Add option to display customers before choosing an ID to delete?
-		ui.fmtInput("Please enter a customer ID to delete");
+		ui.fmtOutput("Please enter a customer ID to delete");
 		Long id = utils.getLong();
 		int result = customerDAO.delete(id);
-		ui.fmtInput("Customer successfully deleted.");
+		ui.fmtOutput("Customer successfully deleted.");
 		return result;
 	}
 }

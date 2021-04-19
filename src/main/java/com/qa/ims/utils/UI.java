@@ -114,10 +114,10 @@ public class UI {
 		}
 	}
 	
-	public void fmtInput(String input) {
+	public void fmtOutput(String output) {
 		LOGGER.info(
 			"|=============================================|"
-			+"\n| "+input
+			+"\n| "+output
 			+"\n|=============================================|"
 		);
 	}
