@@ -5,9 +5,10 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.qa.ims.IMS;
+import com.qa.ims.exceptions.CustomerNotFoundException;
 import com.qa.ims.persistence.dao.CustomerDAO;
 import com.qa.ims.persistence.domain.Customer;
-import com.qa.ims.utils.UI;
 import com.qa.ims.utils.Utils;
 
 /**
@@ -20,12 +21,10 @@ public class CustomerController implements CrudController<Customer> {
 
 	private final CustomerDAO customerDAO;
 	private final Utils utils;
-	private final UI ui;
 
-	public CustomerController(CustomerDAO customerDAO, UI ui, Utils utils) {
+	public CustomerController(CustomerDAO customerDAO, Utils utils) {
 //		super();
 		this.customerDAO = customerDAO;
-		this.ui = ui;
 		this.utils = utils;
 	}
 
@@ -35,8 +34,8 @@ public class CustomerController implements CrudController<Customer> {
 	@Override
 	public List<Customer> readAll() {
 		List<Customer> customers = customerDAO.readAll();
-		ui.fmtHeader("                 Customers                  |");
-		ui.displayDTOs(customers);
+		IMS.ui.fmtHeader("                 Customers                  |");
+		IMS.ui.displayDTOs(customers);
 		return customers;
 	}
 
@@ -45,31 +44,35 @@ public class CustomerController implements CrudController<Customer> {
 	 */
 	@Override
 	public Customer create() {
-		ui.fmtOutput("         Please enter a first name          |");
+		IMS.ui.fmtOutput("         Please enter a first name          |");
 		String firstName = utils.getString();
-		ui.fmtOutput("          Please enter a surname            |");
+		IMS.ui.fmtOutput("          Please enter a surname            |");
 		String surname = utils.getString();
 		Customer customer = customerDAO.create(new Customer(firstName, surname)); 
-		ui.fmtOutput("       Customer successfully created        |");
+		if (customer != null)
+			IMS.ui.fmtOutput("       Customer successfully created        |");
 		return customer;
 	}
 
 	/**
 	 * Updates an existing customer by taking in user input
+	 * @throws CustomerNotFoundException 
 	 */
 	@Override
 	public Customer update() {
-		ui.fmtOutput("      Display existing customers?  Y/N      |");
+		IMS.ui.fmtOutput("      Display existing customers?  Y/N      |");
 		if (utils.getYN().equals("y")) readAll();
-		ui.fmtOutput("   Please enter a customer ID to update     |");
+		IMS.ui.fmtOutput("   Please enter a customer ID to update     |");
 		Long id = utils.getLong();
-		ui.fmtOutput("         Please enter a first name          |");
+		IMS.ui.fmtOutput("         Please enter a first name          |");
 		String firstName = utils.getString();
-		ui.fmtOutput("          Please enter a surname            |");
+		IMS.ui.fmtOutput("          Please enter a surname            |");
 		String surname = utils.getString();
 		Customer customer = customerDAO.update(new Customer(id, firstName, surname));
-		ui.fmtOutput("       Customer successfully updated        |");
-		ui.displayDTO(customer);
+		if (customer != null) {
+			IMS.ui.fmtOutput("       Customer successfully updated        |");
+			IMS.ui.displayDTO(customer);
+		}
 		return customer;
 	}
 
@@ -80,12 +83,13 @@ public class CustomerController implements CrudController<Customer> {
 	 */
 	@Override
 	public int delete() {
-		ui.fmtOutput("      Display existing customers?  Y/N      |");
+		IMS.ui.fmtOutput("      Display existing customers?  Y/N      |");
 		if (utils.getYN().equals("y")) readAll();
-		ui.fmtOutput("    Please enter a customer ID to delete    |");
+		IMS.ui.fmtOutput("    Please enter a customer ID to delete    |");
 		Long id = utils.getLong();
 		int result = customerDAO.delete(id);
-		ui.fmtOutput("       Customer successfully deleted        |");
+		if (result != 0)
+			IMS.ui.fmtOutput("       Customer successfully deleted        |");
 		return result;
 	}
 }

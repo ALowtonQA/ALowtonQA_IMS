@@ -13,6 +13,9 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.qa.ims.IMS;
+import com.qa.ims.exceptions.CustomerNotFoundException;
+import com.qa.ims.exceptions.OrderNotFoundException;
 import com.qa.ims.persistence.domain.Order;
 import com.qa.ims.utils.DBUtils;
 
@@ -48,11 +51,11 @@ public class OrderDAO implements Dao<Order> {
 	public List<Order> readAll() {
 		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery(
-						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
-						+ "FROM orders AS o"
-						+ "	INNER JOIN customers AS c"
-						+ " ON o.cust_id = c.id"
-						+ " ORDER BY id")) {
+					"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
+							+ "FROM orders AS o"
+							+ "	INNER JOIN customers AS c"
+							+ " ON o.cust_id = c.id"
+							+ " ORDER BY id")) {
 			List<Order> orders = new ArrayList<>();
 			while (resultSet.next()) {
 				orders.add(modelFromResultSet(resultSet));
@@ -68,11 +71,11 @@ public class OrderDAO implements Dao<Order> {
 	public Order readLatest() {
 		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery(
-						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
-								+ "FROM orders AS o"
-								+ "	INNER JOIN customers AS c"
-								+ " ON o.cust_id = c.id"
-								+ " ORDER BY id DESC LIMIT 1")) {
+					"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
+							+ "FROM orders AS o"
+							+ "	INNER JOIN customers AS c"
+							+ " ON o.cust_id = c.id"
+							+ " ORDER BY id DESC LIMIT 1")) {
 			resultSet.next();
 			return modelFromResultSet(resultSet);
 		} catch (Exception e) {
@@ -94,9 +97,18 @@ public class OrderDAO implements Dao<Order> {
 			statement.setLong(1, order.getCustomerId());
 			statement.executeUpdate();
 			return readLatest();
-		} catch (Exception e) {
-			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+		} catch (SQLException sqle) {
+			try {
+				if (sqle.getMessage().startsWith("Cannot add")) {
+					throw new CustomerNotFoundException(order.getCustomerId());
+				} else {
+					LOGGER.debug(sqle);
+					LOGGER.error(sqle.getMessage());
+				}
+			} catch (CustomerNotFoundException cnfe) {
+				LOGGER.debug(cnfe);
+				LOGGER.error(IMS.ui.formatError("   "+cnfe.getMessage()+"    |"));
+			}
 		}
 		return null;
 	}
@@ -104,19 +116,24 @@ public class OrderDAO implements Dao<Order> {
 	@Override
 	public Order read(Long id) {
 		try (PreparedStatement statement = conn.prepareStatement(
-						"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
-							+ "FROM orders AS o"
-							+ "	INNER JOIN customers AS c"
-							+ " ON o.cust_id = c.id"
-							+ " WHERE o.id = ?")) {
+				"SELECT o.id, CONCAT(c.first_name, ' ', c.surname) AS customer, `date`"
+						+ "FROM orders AS o"
+						+ "	INNER JOIN customers AS c"
+						+ " ON o.cust_id = c.id"
+						+ " WHERE o.id = ?")) {
 			statement.setLong(1, id);
 			try (ResultSet resultSet = statement.executeQuery()) {
+				if (!resultSet.isBeforeFirst())   
+					throw new OrderNotFoundException(id);
 				resultSet.next();
 				return modelFromResultSet(resultSet);
 			}
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
+		} catch (OrderNotFoundException infe) {
+			LOGGER.debug(infe);
+			LOGGER.error(IMS.ui.formatError("    "+infe.getMessage()+"     |"));
 		}
 		return null;
 	}
@@ -136,9 +153,18 @@ public class OrderDAO implements Dao<Order> {
 			statement.setLong(2, order.getId());
 			statement.executeUpdate();
 			return read(order.getId());
-		} catch (Exception e) {
-			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+		} catch (SQLException sqle) {
+			try {
+				if (sqle.getMessage().startsWith("Cannot add")) {
+					throw new CustomerNotFoundException(order.getCustomerId());
+				} else {
+					LOGGER.debug(sqle);
+					LOGGER.error(sqle.getMessage());
+				}
+			} catch (CustomerNotFoundException cnfe) {
+				LOGGER.debug(cnfe);
+				LOGGER.error(IMS.ui.formatError("   "+cnfe.getMessage()+"    |"));
+			}
 		}
 		return null;
 	}
@@ -152,10 +178,16 @@ public class OrderDAO implements Dao<Order> {
 	public int delete(long id) {
 		try (PreparedStatement statement = conn.prepareStatement("DELETE FROM orders WHERE id = ?")) {
 			statement.setLong(1, id);
-			return statement.executeUpdate();
-		} catch (Exception e) {
+			int result = statement.executeUpdate();
+			if (result == 0)
+				throw new OrderNotFoundException(id);
+			return result;
+		} catch (SQLException e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
+		} catch (OrderNotFoundException infe) {
+			LOGGER.debug(infe);
+			LOGGER.error(IMS.ui.formatError("    "+infe.getMessage()+"     |"));
 		}
 		return 0;
 	}
@@ -170,9 +202,12 @@ public class OrderDAO implements Dao<Order> {
 						+ "	 ON o.id = oi.order_id"
 						+ "	 INNER JOIN items as i"
 						+ "	 ON oi.item_id = i.id"
-						+ " WHERE o.id = ?;")) {
+						+ " WHERE o.id = ?"
+						+ " HAVING total_price IS NOT NULL")) {
 			statement.setLong(1, id);
 			try (ResultSet resultSet = statement.executeQuery()) {
+				if (!resultSet.isBeforeFirst())
+					return null;
 				resultSet.next();
 				return modelTotalCost(resultSet);
 			}

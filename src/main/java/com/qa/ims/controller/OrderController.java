@@ -5,11 +5,11 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.qa.ims.IMS;
 import com.qa.ims.persistence.dao.OrderDAO;
 import com.qa.ims.persistence.dao.OrderItemDAO;
 import com.qa.ims.persistence.domain.Order;
 import com.qa.ims.persistence.domain.OrderItem;
-import com.qa.ims.utils.UI;
 import com.qa.ims.utils.Utils;
 
 /**
@@ -25,15 +25,13 @@ public class OrderController implements CrudController<Order> {
 	private final OrderItemDAO orderItemDAO;
 	private final OrderDAO orderDAO;
 	private final Utils utils;
-	private final UI ui;
 	
-	public OrderController(OrderDAO oDAO, OrderItemDAO oIDAO, CustomerController cController, ItemController iController, UI ui, Utils utils) {
+	public OrderController(OrderDAO oDAO, OrderItemDAO oIDAO, CustomerController cController, ItemController iController, Utils utils) {
 //		super();
 		this.cController = cController;
 		this.iController = iController;
 		this.orderItemDAO = oIDAO;
 		this.orderDAO = oDAO;
-		this.ui = ui;
 		this.utils = utils;
 	}
 
@@ -43,8 +41,8 @@ public class OrderController implements CrudController<Order> {
 	@Override
 	public List<Order> readAll() {
 		List<Order> orders = orderDAO.readAll();
-		ui.fmtHeader("               Active orders                |");
-		ui.displayDTOs(orders);
+		IMS.ui.fmtHeader("               Active orders                |");
+		IMS.ui.displayDTOs(orders);
 		return orders;
 	}
 	
@@ -53,12 +51,13 @@ public class OrderController implements CrudController<Order> {
 	 */
 	@Override
 	public Order create() {
-		ui.fmtOutput("      Display existing customers?  Y/N      |");
+		IMS.ui.fmtOutput("      Display existing customers?  Y/N      |");
 		if (utils.getYN().equals("y")) cController.readAll();
-		ui.fmtOutput("        Please enter a customer id");
+		IMS.ui.fmtOutput("        Please enter a customer id");
 		Long customerId = utils.getLong();
 		Order order = orderDAO.create(new Order(customerId));
-		ui.fmtOutput("        Order successfully created          |");
+		if (order != null)
+			IMS.ui.fmtOutput("        Order successfully created          |");
 		return order;
 	}
 
@@ -67,16 +66,19 @@ public class OrderController implements CrudController<Order> {
 	 */
 	@Override
 	public Order update() {
-		ui.fmtOutput("        Display existing orders?  Y/N       |");
+		IMS.ui.fmtOutput("        Display existing orders?  Y/N       |");
 		if (utils.getYN().equals("y")) readAll();
-		ui.fmtOutput("     Please enter an order ID to update     |");
+		IMS.ui.fmtOutput("     Please enter an order ID to update     |");
 		Long id = utils.getLong();
-		ui.fmtOutput("      Display existing customers?  Y/N      |");
+		IMS.ui.fmtOutput("      Display existing customers?  Y/N      |");
 		if (utils.getYN().equals("y")) cController.readAll();
-		ui.fmtOutput("         Please enter a customer ID         |");
+		IMS.ui.fmtOutput("         Please enter a customer ID         |");
 		Long customerId = utils.getLong();
 		Order order = orderDAO.update(new Order(id, customerId));
-		ui.fmtOutput("        Order successfully updated          |");
+		if (order != null) {
+			IMS.ui.fmtOutput("        Order successfully updated          |");
+			IMS.ui.displayDTO(order);
+		}
 		return order;
 	}
 
@@ -87,60 +89,80 @@ public class OrderController implements CrudController<Order> {
 	 */
 	@Override
 	public int delete() {
-		ui.fmtOutput("        Display existing orders?  Y/N       |");
+		IMS.ui.fmtOutput("        Display existing orders?  Y/N       |");
 		if (utils.getYN().equals("y")) readAll();
-		ui.fmtOutput("     Please enter an order ID to delete     |");
+		IMS.ui.fmtOutput("     Please enter an order ID to delete     |");
 		Long id = utils.getLong();
 		int result = orderDAO.delete(id);
-		ui.fmtOutput("        Order successfully deleted          |");
+		if (result != 0)
+			IMS.ui.fmtOutput("        Order successfully deleted          |");
 		return result;
 	}
 	
 	public List<OrderItem> readAllOrderItems(Long orderId) {
-		List<OrderItem> items = orderItemDAO.readAll(orderId);
-		ui.fmtHeader("             Items in order #" + orderId + "              |");
-		ui.displayDTOs(items);
-		return items;
+		List<OrderItem> oItems = orderItemDAO.readAll(orderId);
+		IMS.ui.fmtHeader("             Items in order #" + orderId + "              |");
+		if (oItems.size() > 0) {
+			IMS.ui.displayDTOs(oItems);
+		} else {
+			IMS.ui.fmtOutput("             No items in order              |");
+		}
+		return oItems;
 	}
 	
-	public List<OrderItem> addItem() {
-		ui.fmtOutput("        Display existing orders?  Y/N       |");
+	public void addItem() {
+		IMS.ui.fmtOutput("        Display existing orders?  Y/N       |");
 		if (utils.getYN().equals("y")) readAll();
-		ui.fmtOutput("         Please enter an order ID           |");
+		IMS.ui.fmtOutput("         Please enter an order ID           |");
 		Long orderId = utils.getLong();
-		ui.fmtOutput("        Display existing items?  Y/N        |");
+		IMS.ui.fmtOutput("        Display existing items?  Y/N        |");
 		if (utils.getYN().equals("y")) iController.readAll();
-		ui.fmtOutput("          Please enter an item ID           |");
+		IMS.ui.fmtOutput("          Please enter an item ID           |");
 		Long itemId = utils.getLong();
-		ui.fmtOutput("          Please enter a quantity           |");
+		IMS.ui.fmtOutput("          Please enter a quantity           |");
 		Long quantity = utils.getLong();
-		orderItemDAO.create(new OrderItem(orderId, itemId, quantity));
-		ui.fmtOutput("            Item added to order             |");
-		return orderItemDAO.readAll(orderId);
+		OrderItem orderItem = orderItemDAO.create(new OrderItem(orderId, itemId, quantity));
+		if (orderItem != null) {
+			IMS.ui.fmtOutput("            Item added to order             |");
+			readAllOrderItems(orderId);
+		}
 	}
 	
-	public List<OrderItem> orderItems() {
-		ui.fmtOutput("        Display existing orders?  Y/N       |");
+	public long[] orderItems() {
+		IMS.ui.fmtOutput("        Display existing orders?  Y/N       |");
 		if (utils.getYN().equals("y")) readAll();
-		ui.fmtOutput("          Please enter an order ID          |");
+		IMS.ui.fmtOutput("          Please enter an order ID          |");
 		Long orderId = utils.getLong();
-		return readAllOrderItems(orderId);
+		long[] results = {readAllOrderItems(orderId).size(), orderId};
+		return results;
 	}
 	
-	public int removeItem() {
-		orderItems();
-		ui.fmtOutput("        Please enter an ID to delete        |");
-		Long itemId = utils.getLong();
-		int result = orderItemDAO.delete(itemId);
-		ui.fmtOutput("          Item removed from order           |");
-		return result;
+	public void removeItem() {
+		long[] oItems = orderItems();
+		long size = oItems[0];
+		long orderId = oItems[1];
+		int result = 0;
+		if (size > 0) {
+			IMS.ui.fmtOutput("        Please enter an ID to delete        |");
+			Long orderItemId = utils.getLong();
+			result = orderItemDAO.delete(orderItemId, orderId);
+			if (result != 0)
+				IMS.ui.fmtOutput("          Item removed from order           |");
+		}
 	}
 	
 	public void orderCost() {
-		ui.fmtOutput("        Display existing orders?  Y/N       |");
+		IMS.ui.fmtOutput("        Display existing orders?  Y/N       |");
 		if (utils.getYN().equals("y")) readAll();
-		ui.fmtOutput("          Please enter an order ID          |");
+		IMS.ui.fmtOutput("          Please enter an order ID          |");
 		Long orderId = utils.getLong();
-		ui.displayDTO(orderDAO.totalCost(orderId));
+		if (orderDAO.read(orderId) != null) {
+			Order result = orderDAO.totalCost(orderId);
+			if (result != null) {
+				IMS.ui.displayDTO(result);
+			} else {
+				IMS.ui.fmtOutput("         Order #"+ orderId +" contains no items.        |");
+			}
+		}
 	}
 }

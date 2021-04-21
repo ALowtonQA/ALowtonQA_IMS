@@ -36,7 +36,7 @@ public class UI {
 
 		while (true) {
 			int input = utils.getInt();
-			if (input < 5 && input > 0) {
+			if (input < 5) {
 				return Domain.getDomain(input);
 			}
 			LOGGER.info(
@@ -74,7 +74,7 @@ public class UI {
 		
 		while (true) {
 			int input = utils.getInt();
-			if (input < 10 && input > 0) {
+			if (input < 10) {
 				return OrderAction.getAction(input);
 			}
 			LOGGER.info(
@@ -103,7 +103,7 @@ public class UI {
 		
 		while (true) {
 			int input = utils.getInt();
-			if (input < 6 && input > 0) {
+			if (input < 6) {
 				return Action.getAction(input);
 			}
 			LOGGER.info(
@@ -143,6 +143,15 @@ public class UI {
 				+ result
 			);
 		}
+	}
+
+	public String formatError(String e) {
+		return new String (
+				"|=============================================|\n"
+				+"|====================ERROR====================|\n"
+				+"|=============================================|\n"
+				+"| "+e
+			);
 	}
 	
 	public void exit() {

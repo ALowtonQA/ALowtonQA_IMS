@@ -21,23 +21,22 @@ import com.qa.ims.utils.Utils;
 public class IMS {
 
 	public static final Logger LOGGER = LogManager.getLogger();
-
+	public static final UI ui = new UI();
+	
 	private final CustomerController customers;
 	private final OrderController orders;
 	private final ItemController items;
 	private final Utils utils;
-	private final UI ui;
 
 	public IMS() {
-		this.ui = new UI();
-		this.utils = new Utils(ui);
+		this.utils = new Utils();
 		final CustomerDAO custDAO = new CustomerDAO();
 		final OrderItemDAO oiDAO = new OrderItemDAO();
 		final OrderDAO orderDAO = new OrderDAO();
 		final ItemDAO itemDAO = new ItemDAO();
-		this.customers = new CustomerController(custDAO, ui, utils);
-		this.items = new ItemController(itemDAO, ui, utils);
-		this.orders = new OrderController(orderDAO, oiDAO, customers, items, ui, utils);
+		this.customers = new CustomerController(custDAO, utils);
+		this.items = new ItemController(itemDAO, utils);
+		this.orders = new OrderController(orderDAO, oiDAO, customers, items, utils);
 	}
 
 	public void imsSystem() {

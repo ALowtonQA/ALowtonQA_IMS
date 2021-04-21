@@ -11,6 +11,8 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.qa.ims.IMS;
+import com.qa.ims.exceptions.ItemNotFoundException;
 import com.qa.ims.persistence.domain.Item;
 import com.qa.ims.utils.DBUtils;
 
@@ -85,12 +87,17 @@ public class ItemDAO implements Dao<Item> {
 		try (PreparedStatement statement = conn.prepareStatement("SELECT * FROM items WHERE id = ?")) {
 			statement.setLong(1, id);
 			try (ResultSet resultSet = statement.executeQuery()) {
+				if (!resultSet.isBeforeFirst())   
+					throw new ItemNotFoundException(id);
 				resultSet.next();
 				return modelFromResultSet(resultSet);
 			}
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
+		} catch (ItemNotFoundException infe) {
+			LOGGER.debug(infe);
+			LOGGER.error(IMS.ui.formatError("    "+infe.getMessage()+"      |"));
 		}
 		return null;
 	}
@@ -127,10 +134,16 @@ public class ItemDAO implements Dao<Item> {
 	public int delete(long id) {
 		try (PreparedStatement statement = conn.prepareStatement("DELETE FROM items WHERE id = ?")) {
 			statement.setLong(1, id);
-			return statement.executeUpdate();
-		} catch (Exception e) {
+			int result = statement.executeUpdate();
+			if (result == 0)
+				throw new ItemNotFoundException(id);
+			return result;
+		} catch (SQLException e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
+		} catch (ItemNotFoundException infe) {
+			LOGGER.debug(infe);
+			LOGGER.error(IMS.ui.formatError("    "+infe.getMessage()+"      |"));
 		}
 		return 0;
 	}

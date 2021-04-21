@@ -11,6 +11,10 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.qa.ims.IMS;
+import com.qa.ims.exceptions.ItemNotFoundException;
+import com.qa.ims.exceptions.OrderItemNotFoundException;
+import com.qa.ims.exceptions.OrderNotFoundException;
 import com.qa.ims.persistence.domain.OrderItem;
 import com.qa.ims.utils.DBUtils;
 
@@ -36,7 +40,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	}
 	
 	/**
-	 * Reads all order_items from the database
+	 * Reads all order items from the database
 	 * 
 	 * @return A list of order_items
 	 */
@@ -61,10 +65,11 @@ public class OrderItemDAO implements Dao<OrderItem> {
 		return new ArrayList<>();
 	}
 	/**
-	 * Reads all order_items from the database
-	 * based on a specific order Id.
+	 * Reads all order items from the database based on a specific order Id.
 	 * 
-	 * @return A list of order_items
+	 * @param orderId - The id of the order to display the associated order items.
+	 * 
+	 * @return A list of order items.
 	 */
 	public List<OrderItem> readAll(Long orderId) {
 		try (PreparedStatement statement = conn.prepareStatement(
@@ -75,12 +80,13 @@ public class OrderItemDAO implements Dao<OrderItem> {
 						+" WHERE oi.order_id = ?"
 						+" ORDER BY id")) {
 			statement.setLong(1, orderId);
-			ResultSet resultSet = statement.executeQuery();
-			List<OrderItem> orderItems = new ArrayList<>();
-			while (resultSet.next()) {
-				orderItems.add(modelForSpecificOrder(resultSet));
+			try(ResultSet resultSet = statement.executeQuery()) {
+				List<OrderItem> orderItems = new ArrayList<>();
+				while (resultSet.next()) {
+					orderItems.add(modelForSpecificOrder(resultSet));
+				}
+				return orderItems;
 			}
-			return orderItems;
 		} catch (SQLException e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
@@ -92,10 +98,10 @@ public class OrderItemDAO implements Dao<OrderItem> {
 		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery(
 						"SELECT oi.id, i.item_name as item_name, quantity"
-								+" FROM order_items AS oi"
-								+" INNER JOIN items AS i"
-								+" ON oi.item_id = i.id"
-								+" ORDER BY oi.id DESC LIMIT 1")) {
+							+" FROM order_items AS oi"
+							+" INNER JOIN items AS i"
+							+" ON oi.item_id = i.id"
+							+" ORDER BY oi.id DESC LIMIT 1")) {
 			resultSet.next();
 			return modelForSpecificOrder(resultSet);
 		} catch (Exception e) {
@@ -113,75 +119,106 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	@Override
 	public OrderItem create(OrderItem order) {
 		try (PreparedStatement statement = conn
-						.prepareStatement("INSERT INTO order_items(order_id, item_id, quantity) VALUES (?, ?, ?)")) {
+				.prepareStatement("INSERT INTO order_items(order_id, item_id, quantity) VALUES (?, ?, ?)")) {
 			statement.setLong(1, order.getOrderId());
 			statement.setLong(2, order.getItemId());
 			statement.setLong(3, order.getQuantity());
 			statement.executeUpdate();
 			return readLatest();
-		} catch (Exception e) {
-			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+		} catch (SQLException sqle) {
+			String msg = sqle.getMessage();
+			try {
+				if (msg.startsWith("Cannot add")) {
+					if (msg.contains("order_id"))
+						throw new OrderNotFoundException(order.getOrderId());
+					if (msg.contains("item_id"))
+						throw new ItemNotFoundException(order.getItemId());
+				} else {
+					LOGGER.debug(sqle);
+					LOGGER.error(msg);
+				}
+			} catch (OrderNotFoundException onfe) {
+				LOGGER.debug(onfe);
+				LOGGER.error(IMS.ui.formatError("    "+onfe.getMessage()+"     |"));
+			} catch (ItemNotFoundException infe) {
+				LOGGER.debug(infe);
+				LOGGER.error(IMS.ui.formatError("    "+infe.getMessage()+"      |"));
+			}
 		}
 		return null;
 	}
 
-	@Override
-	public OrderItem read(Long id) {
-		try (PreparedStatement statement = conn.prepareStatement(
-						"SELECT oi.id, oi.order_id, i.item_name as item_name, quantity"
-								+" FROM order_items AS oi"
-								+" INNER JOIN items AS i"
-								+" ON oi.item_id = i.id"
-								+" WHERE oi.order_id = ?")) {
+	/**
+	 * Deletes an order item in the database
+	 * 
+	 * @param id - id of the order
+	 * @param orderId - id of the order
+	 */
+	
+	public int delete(long id, long orderId) {
+		try (PreparedStatement statement = conn.prepareStatement("DELETE FROM order_items WHERE id = ? AND order_id = ?")) {
 			statement.setLong(1, id);
-			try (ResultSet resultSet = statement.executeQuery()) {
-				resultSet.next();
-				return modelFromResultSet(resultSet);
-			}
-		} catch (Exception e) {
+			statement.setLong(2, orderId);
+			int result = statement.executeUpdate();
+			if (result == 0)
+				throw new OrderItemNotFoundException(id);
+			return result;
+		} catch (SQLException e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
+		} catch (OrderItemNotFoundException oinfe) {
+			LOGGER.debug(oinfe);
+			LOGGER.error(IMS.ui.formatError(" "+oinfe.getMessage()+"   |"));
 		}
-		return null;
+		return 0;
 	}
+
 	/**
-	 * Updates a order in the database
+	 * Updates an order item in the database
 	 * 
-	 * @param order - takes in a order object, the id field will be used to
-	 *                 update that order in the database
+	 * @param order - takes in an order item object, the id field will be used to
+	 *                 update that order in the database.
 	 * @return
 	 */
 	@Override
 	public OrderItem update(OrderItem order) {
-		try (PreparedStatement statement = conn
-						.prepareStatement("UPDATE order_items SET order_id = ?, item_id = ?, quantity = ? WHERE id = ?")) {
-			statement.setLong(1, order.getOrderId());
-			statement.setLong(2, order.getItemId());
-			statement.setLong(3, order.getQuantity());
-			statement.setLong(4, order.getId());
-			statement.executeUpdate();
-			return read(order.getId());
-		} catch (Exception e) {
-			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
-		}
+//		try (PreparedStatement statement = conn
+//						.prepareStatement("UPDATE order_items SET order_id = ?, item_id = ?, quantity = ? WHERE id = ?")) {
+//			statement.setLong(1, order.getOrderId());
+//			statement.setLong(2, order.getItemId());
+//			statement.setLong(3, order.getQuantity());
+//			statement.setLong(4, order.getId());
+//			statement.executeUpdate();
+//			return read(order.getId());
+//		} catch (Exception e) {
+//			LOGGER.debug(e);
+//			LOGGER.error(e.getMessage());
+//		}
 		return null;
 	}
-	/**
-	 * Deletes a order in the database
-	 * 
-	 * @param id - id of the order
-	 */
+	
+	@Override
+	public OrderItem read(Long id) {
+//		try (PreparedStatement statement = conn.prepareStatement(
+//						"SELECT oi.id, oi.order_id, i.item_name as item_name, quantity"
+//								+" FROM order_items AS oi"
+//								+" INNER JOIN items AS i"
+//								+" ON oi.item_id = i.id"
+//								+" WHERE oi.order_id = ?")) {
+//			statement.setLong(1, id);
+//			try (ResultSet resultSet = statement.executeQuery()) {
+//				resultSet.next();
+//				return modelFromResultSet(resultSet);
+//			}
+//		} catch (Exception e) {
+//			LOGGER.debug(e);
+//			LOGGER.error(e.getMessage());
+//		}
+		return null;
+	}
+	
 	@Override
 	public int delete(long id) {
-		try (PreparedStatement statement = conn.prepareStatement("DELETE FROM order_items WHERE id = ?")) {
-			statement.setLong(1, id);
-			return statement.executeUpdate();
-		} catch (Exception e) {
-			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
-		}
 		return 0;
 	}
 }

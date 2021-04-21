@@ -11,6 +11,8 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.qa.ims.IMS;
+import com.qa.ims.exceptions.CustomerNotFoundException;
 import com.qa.ims.persistence.domain.Customer;
 import com.qa.ims.utils.DBUtils;
 
@@ -85,12 +87,17 @@ public class CustomerDAO implements Dao<Customer> {
 		try (PreparedStatement statement = conn.prepareStatement("SELECT * FROM customers WHERE id = ?")) {
 			statement.setLong(1, id);
 			try (ResultSet resultSet = statement.executeQuery()) {
+				if (!resultSet.isBeforeFirst())   
+					throw new CustomerNotFoundException(id);
 				resultSet.next();
 				return modelFromResultSet(resultSet);
 			}
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(IMS.ui.formatError(e.getMessage()));
+		} catch (CustomerNotFoundException cnfe) {
+			LOGGER.debug(cnfe);
+			LOGGER.error(IMS.ui.formatError("   "+cnfe.getMessage()+"    |"));
 		}
 		return null;
 	}
@@ -101,6 +108,7 @@ public class CustomerDAO implements Dao<Customer> {
 	 * @param customer - takes in a customer object, the id field will be used to
 	 *                 update that customer in the database
 	 * @return
+	 * @throws CustomerNotFoundException 
 	 */
 	@Override
 	public Customer update(Customer customer) {
@@ -111,7 +119,7 @@ public class CustomerDAO implements Dao<Customer> {
 			statement.setLong(3, customer.getId());
 			statement.executeUpdate();
 			return read(customer.getId());
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
 		}
@@ -127,10 +135,16 @@ public class CustomerDAO implements Dao<Customer> {
 	public int delete(long id) {
 		try (PreparedStatement statement = conn.prepareStatement("DELETE FROM customers WHERE id = ?")) {
 			statement.setLong(1, id);
-			return statement.executeUpdate();
-		} catch (Exception e) {
+			int result = statement.executeUpdate();
+			if (result == 0)
+				throw new CustomerNotFoundException(id);
+			return result;
+		} catch (SQLException e) {
 			LOGGER.debug(e);
 			LOGGER.error(e.getMessage());
+		} catch (CustomerNotFoundException cnfe) {
+			LOGGER.debug(cnfe);
+			LOGGER.error(IMS.ui.formatError("   "+cnfe.getMessage()+"    |"));
 		}
 		return 0;
 	}

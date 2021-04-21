@@ -2,20 +2,19 @@ package com.qa.ims.utils;
 
 import java.util.Scanner;
 
+import com.qa.ims.IMS;
+
 public class Utils {
 	
 	private final Scanner scanner;
-	private final UI ui;
 	
-	public Utils(Scanner scanner, UI ui) {
+	public Utils(Scanner scanner) {
 //		super();
 		this.scanner = scanner;
-		this.ui = ui;
 	}
 
-	public Utils(UI ui) {
+	public Utils() {
 		this.scanner = new Scanner(System.in);
-		this.ui = ui;
 	}
 
 	public Long getLong() {
@@ -25,8 +24,13 @@ public class Utils {
 			try {
 				input = getString();
 				longInput = Long.parseLong(input);
+				if (longInput <= 0) {
+					IMS.ui.fmtOutput("      Error - Input can't be 0 or less      |");
+					longInput = null;
+					continue;
+				}
 			} catch (NumberFormatException nfe) {
-				ui.fmtOutput("       Error - Input must be a number       |");
+				IMS.ui.fmtOutput("       Error - Input must be a number       |");
 			}
 		} while (longInput == null);
 		return longInput;
@@ -44,7 +48,7 @@ public class Utils {
 			if (input.equals("y") || input.equals("n")) {
 				return input;
 			}
-			ui.fmtOutput("          Error - Input must be Y/N         |");
+			IMS.ui.fmtOutput("          Error - Input must be Y/N         |");
 		}
 	}
 	
@@ -55,8 +59,13 @@ public class Utils {
 			try {
 				input = getString();
 				intInput = Integer.parseInt(input);
+				if (intInput <= 0) {
+					IMS.ui.fmtOutput("      Error - Input can't be 0 or less      |");
+					intInput = null;
+					continue;
+				}
 			} catch (NumberFormatException nfe) {
-				ui.fmtOutput("       Error - Input must be a number       |");
+				IMS.ui.fmtOutput("       Error - Input must be a number       |");
 			}
 		} while (intInput == null);
 		return intInput;
@@ -69,8 +78,13 @@ public class Utils {
 			try {
 				input = getString();
 				doubleInput = Double.parseDouble(input);
+				if (doubleInput <= 0) {
+					IMS.ui.fmtOutput("      Error - Input can't be 0 or less      |");
+					doubleInput = null;
+					continue;
+				}
 			} catch (NumberFormatException nfe) {
-				ui.fmtOutput("       Error - Input must be a number       |");
+				IMS.ui.fmtOutput("       Error - Input must be a number       |");
 			}
 		} while (doubleInput == null);
 		return doubleInput;
