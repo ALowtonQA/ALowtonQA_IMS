@@ -14,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.qa.ims.IMS;
-import com.qa.ims.exceptions.CustomerNotFoundException;
 import com.qa.ims.exceptions.OrderNotFoundException;
 import com.qa.ims.persistence.domain.Order;
 import com.qa.ims.utils.DBUtils;
@@ -98,17 +97,8 @@ public class OrderDAO implements Dao<Order> {
 			statement.executeUpdate();
 			return readLatest();
 		} catch (SQLException sqle) {
-			try {
-				if (sqle.getMessage().startsWith("Cannot add")) {
-					throw new CustomerNotFoundException(order.getCustomerId());
-				} else {
-					LOGGER.debug(sqle);
-					LOGGER.error(sqle.getMessage());
-				}
-			} catch (CustomerNotFoundException cnfe) {
-				LOGGER.debug(cnfe);
-				LOGGER.error(IMS.ui.formatError("   "+cnfe.getMessage()+"    |"));
-			}
+			LOGGER.debug(sqle);
+			LOGGER.error(sqle.getMessage());
 		}
 		return null;
 	}
@@ -154,17 +144,8 @@ public class OrderDAO implements Dao<Order> {
 			statement.executeUpdate();
 			return read(order.getId());
 		} catch (SQLException sqle) {
-			try {
-				if (sqle.getMessage().startsWith("Cannot add")) {
-					throw new CustomerNotFoundException(order.getCustomerId());
-				} else {
-					LOGGER.debug(sqle);
-					LOGGER.error(sqle.getMessage());
-				}
-			} catch (CustomerNotFoundException cnfe) {
-				LOGGER.debug(cnfe);
-				LOGGER.error(IMS.ui.formatError("   "+cnfe.getMessage()+"    |"));
-			}
+			LOGGER.debug(sqle);
+			LOGGER.error(sqle.getMessage());
 		}
 		return null;
 	}

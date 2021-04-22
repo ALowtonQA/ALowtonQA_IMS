@@ -37,7 +37,7 @@ public class ItemController implements CrudController<Item> {
 		IMS.ui.displayDTOs(items);
 		return items;
 	}
-
+	
 	/**
 	 * Creates a Item by taking in user input
 	 */
@@ -91,4 +91,8 @@ public class ItemController implements CrudController<Item> {
 		return result;
 	}
 
+	
+	public Item read(long id) {
+		return itemDAO.read(id);
+	}
 }

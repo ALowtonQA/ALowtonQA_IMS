@@ -12,9 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.qa.ims.IMS;
-import com.qa.ims.exceptions.ItemNotFoundException;
 import com.qa.ims.exceptions.OrderItemNotFoundException;
-import com.qa.ims.exceptions.OrderNotFoundException;
 import com.qa.ims.persistence.domain.OrderItem;
 import com.qa.ims.utils.DBUtils;
 
@@ -126,24 +124,8 @@ public class OrderItemDAO implements Dao<OrderItem> {
 			statement.executeUpdate();
 			return readLatest();
 		} catch (SQLException sqle) {
-			String msg = sqle.getMessage();
-			try {
-				if (msg.startsWith("Cannot add")) {
-					if (msg.contains("order_id"))
-						throw new OrderNotFoundException(order.getOrderId());
-					if (msg.contains("item_id"))
-						throw new ItemNotFoundException(order.getItemId());
-				} else {
-					LOGGER.debug(sqle);
-					LOGGER.error(msg);
-				}
-			} catch (OrderNotFoundException onfe) {
-				LOGGER.debug(onfe);
-				LOGGER.error(IMS.ui.formatError("    "+onfe.getMessage()+"     |"));
-			} catch (ItemNotFoundException infe) {
-				LOGGER.debug(infe);
-				LOGGER.error(IMS.ui.formatError("    "+infe.getMessage()+"      |"));
-			}
+			LOGGER.debug(sqle);
+			LOGGER.error(sqle.getMessage());
 		}
 		return null;
 	}

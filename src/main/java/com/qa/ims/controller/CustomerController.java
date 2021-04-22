@@ -92,4 +92,8 @@ public class CustomerController implements CrudController<Customer> {
 			IMS.ui.fmtOutput("       Customer successfully deleted        |");
 		return result;
 	}
+	
+	public Customer read(long id) {
+		return customerDAO.read(id);
+	}
 }

@@ -55,10 +55,13 @@ public class OrderController implements CrudController<Order> {
 		if (utils.getYN().equals("y")) cController.readAll();
 		IMS.ui.fmtOutput("        Please enter a customer id");
 		Long customerId = utils.getLong();
-		Order order = orderDAO.create(new Order(customerId));
-		if (order != null)
-			IMS.ui.fmtOutput("        Order successfully created          |");
-		return order;
+		if (cController.read(customerId) != null) {
+			Order order = orderDAO.create(new Order(customerId));
+			if (order != null)
+				IMS.ui.fmtOutput("        Order successfully created          |");
+			return order;
+		}
+		return null;
 	}
 
 	/**
@@ -69,17 +72,22 @@ public class OrderController implements CrudController<Order> {
 		IMS.ui.fmtOutput("        Display existing orders?  Y/N       |");
 		if (utils.getYN().equals("y")) readAll();
 		IMS.ui.fmtOutput("     Please enter an order ID to update     |");
-		Long id = utils.getLong();
-		IMS.ui.fmtOutput("      Display existing customers?  Y/N      |");
-		if (utils.getYN().equals("y")) cController.readAll();
-		IMS.ui.fmtOutput("         Please enter a customer ID         |");
-		Long customerId = utils.getLong();
-		Order order = orderDAO.update(new Order(id, customerId));
-		if (order != null) {
-			IMS.ui.fmtOutput("        Order successfully updated          |");
-			IMS.ui.displayDTO(order);
+		Long orderId = utils.getLong();
+		if (orderDAO.read(orderId) != null) {
+			IMS.ui.fmtOutput("      Display existing customers?  Y/N      |");
+			if (utils.getYN().equals("y")) cController.readAll();
+			IMS.ui.fmtOutput("         Please enter a customer ID         |");
+			Long customerId = utils.getLong();
+			if (cController.read(customerId) != null) {
+				Order order = orderDAO.update(new Order(orderId, customerId));
+				if (order != null) {
+					IMS.ui.fmtOutput("        Order successfully updated          |");
+					IMS.ui.displayDTO(order);
+					return order;
+				}
+			}
 		}
-		return order;
+		return null;
 	}
 
 	/**
@@ -115,16 +123,20 @@ public class OrderController implements CrudController<Order> {
 		if (utils.getYN().equals("y")) readAll();
 		IMS.ui.fmtOutput("         Please enter an order ID           |");
 		Long orderId = utils.getLong();
-		IMS.ui.fmtOutput("        Display existing items?  Y/N        |");
-		if (utils.getYN().equals("y")) iController.readAll();
-		IMS.ui.fmtOutput("          Please enter an item ID           |");
-		Long itemId = utils.getLong();
-		IMS.ui.fmtOutput("          Please enter a quantity           |");
-		Long quantity = utils.getLong();
-		OrderItem orderItem = orderItemDAO.create(new OrderItem(orderId, itemId, quantity));
-		if (orderItem != null) {
-			IMS.ui.fmtOutput("            Item added to order             |");
-			readAllOrderItems(orderId);
+		if (orderDAO.read(orderId) != null) {
+			IMS.ui.fmtOutput("        Display existing items?  Y/N        |");
+			if (utils.getYN().equals("y")) iController.readAll();
+			IMS.ui.fmtOutput("          Please enter an item ID           |");
+			Long itemId = utils.getLong();
+			if (iController.read(itemId) != null) {
+				IMS.ui.fmtOutput("          Please enter a quantity           |");
+				Long quantity = utils.getLong();
+				OrderItem orderItem = orderItemDAO.create(new OrderItem(orderId, itemId, quantity));
+				if (orderItem != null) {
+					IMS.ui.fmtOutput("            Item added to order             |");
+					readAllOrderItems(orderId);
+				}				
+			}
 		}
 	}
 	
@@ -133,7 +145,11 @@ public class OrderController implements CrudController<Order> {
 		if (utils.getYN().equals("y")) readAll();
 		IMS.ui.fmtOutput("          Please enter an order ID          |");
 		Long orderId = utils.getLong();
-		long[] results = {readAllOrderItems(orderId).size(), orderId};
+		long[] results = new long[2];
+		if (orderDAO.read(orderId) != null) {
+			results[0] = readAllOrderItems(orderId).size();
+			results[1] = orderId;
+		}
 		return results;
 	}
 	
