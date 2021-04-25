@@ -79,7 +79,9 @@ public class Order {
 	@Override
 	public String toString() {
 		SimpleDateFormat fmt = new SimpleDateFormat("EEE MMM dd H:mmaa");
-		String datefmt = fmt.format(date);
+		String datefmt = ""; 
+		if (date != null)
+			datefmt = fmt.format(date);
 		return (total == null)?
 			String.format("|Order ID   |%s%n|Customer   |%s%n|Order Date |%s", id, customerName, datefmt):
 			String.format("|Order ID   |%s%n|Customer   |%s%n|Order Date |%s%n|Total      |£%s", id, customerName, datefmt, total);

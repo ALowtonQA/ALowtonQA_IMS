@@ -12,17 +12,21 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.qa.ims.IMS;
 import com.qa.ims.exceptions.OrderNotFoundException;
 import com.qa.ims.persistence.domain.Order;
-import com.qa.ims.utils.DBUtils;
+import com.qa.ims.utils.UI;
 
 public class OrderDAO implements Dao<Order> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
-	private final Connection conn = DBUtils.getInstance().getConnection();
+	private final Connection conn;
+	private final UI ui;
 	
+	public OrderDAO(UI ui, Connection conn) {
+		this.conn = conn;
+		this.ui = ui;
+	}
+
 	@Override
 	public Order modelFromResultSet(ResultSet resultSet) throws SQLException {
 		Long id = resultSet.getLong("id");
@@ -62,7 +66,7 @@ public class OrderDAO implements Dao<Order> {
 			return orders;
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return new ArrayList<>();
 	}
@@ -79,7 +83,7 @@ public class OrderDAO implements Dao<Order> {
 			return modelFromResultSet(resultSet);
 		} catch (Exception e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -96,9 +100,9 @@ public class OrderDAO implements Dao<Order> {
 			statement.setLong(1, order.getCustomerId());
 			statement.executeUpdate();
 			return readLatest();
-		} catch (SQLException sqle) {
-			LOGGER.debug(sqle);
-			LOGGER.error(sqle.getMessage());
+		} catch (SQLException e) {
+			LOGGER.debug(e);
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -120,10 +124,10 @@ public class OrderDAO implements Dao<Order> {
 			}
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		} catch (OrderNotFoundException infe) {
 			LOGGER.debug(infe);
-			LOGGER.error(IMS.ui.formatError("    "+infe.getMessage()+"     |"));
+			LOGGER.error(ui.formatError("    "+infe.getMessage()+"     |"));
 		}
 		return null;
 	}
@@ -143,9 +147,9 @@ public class OrderDAO implements Dao<Order> {
 			statement.setLong(2, order.getId());
 			statement.executeUpdate();
 			return read(order.getId());
-		} catch (SQLException sqle) {
-			LOGGER.debug(sqle);
-			LOGGER.error(sqle.getMessage());
+		} catch (SQLException e) {
+			LOGGER.debug(e);
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -165,10 +169,10 @@ public class OrderDAO implements Dao<Order> {
 			return result;
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		} catch (OrderNotFoundException infe) {
 			LOGGER.debug(infe);
-			LOGGER.error(IMS.ui.formatError("    "+infe.getMessage()+"     |"));
+			LOGGER.error(ui.formatError("    "+infe.getMessage()+"     |"));
 		}
 		return 0;
 	}
@@ -194,7 +198,7 @@ public class OrderDAO implements Dao<Order> {
 			}
 		} catch (Exception e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}

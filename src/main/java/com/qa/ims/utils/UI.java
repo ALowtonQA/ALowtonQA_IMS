@@ -13,6 +13,11 @@ import com.qa.ims.persistence.domain.Domain;
 public class UI {
 	
 	public static final Logger LOGGER = LogManager.getLogger();
+	private final Utils utils;
+
+	public UI(Utils utils) {
+		this.utils = utils;
+	}
 	
 	public void welcome() {
 		LOGGER.info(
@@ -21,7 +26,15 @@ public class UI {
 		);
 	}
 	
-	public Domain selectDomain(Utils utils) {
+	public boolean initDB() {
+		fmtOutput("       Set up a fresh database? Y/N         |");
+		if (utils.getYN().equals("y")) {
+			return true;
+		}
+		return false;
+	}
+	
+	public Domain selectDomain() {
 		Domain[] dNames = Domain.values();
 		LOGGER.info(
 			"|=============================================|\n"
@@ -39,15 +52,11 @@ public class UI {
 			if (input < 5) {
 				return Domain.getDomain(input);
 			}
-			LOGGER.info(
-					"|=============================================|\n"
-					+ "|   Error - Please enter a valid number (1-4) |\n"
-					+ "|=============================================|"
-			);
+			fmtOutput(" Error - Please enter a valid number (1-4)  |");
 		}
 	}
 	
-	public OrderAction selectOrderAction(Utils utils) {
+	public OrderAction selectOrderAction() {
 		OrderAction[] oANames = OrderAction.values();
 		LOGGER.info(
 			"|=============================================|"	
@@ -77,15 +86,11 @@ public class UI {
 			if (input < 10) {
 				return OrderAction.getAction(input);
 			}
-			LOGGER.info(
-					"|=============================================|\n"
-					+ "|   Error - Please enter a valid number (1-9) |\n"
-					+ "|=============================================|"
-			);
+			fmtOutput(" Error - Please enter a valid number (1-9)  |");
 		}
 	}
 	
-	public Action selectAction(Utils utils, String dName) {
+	public Action selectAction() {
 		Action[] aNames = Action.values();
 		LOGGER.info(
 			 "|=============================================|"	
@@ -106,11 +111,7 @@ public class UI {
 			if (input < 6) {
 				return Action.getAction(input);
 			}
-			LOGGER.info(
-					"|=============================================|\n"
-					+ "|   Error - Please enter a valid number (1-5) |\n"
-					+ "|=============================================|"
-			);
+			fmtOutput(" Error - Please enter a valid number (1-5)  |");
 		}
 	}
 	

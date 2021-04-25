@@ -22,9 +22,7 @@ public class DBUtils {
 	private final String dbPassword;
 	private final Connection conn;
 	
-	private static DBUtils instance;
-	
-	private DBUtils(String properties) {
+	public DBUtils(String properties) {
 		Properties dbProps = new Properties();
 		try (InputStream fis = ClassLoader.getSystemResourceAsStream(properties)) {
 			dbProps.load(fis);
@@ -37,7 +35,7 @@ public class DBUtils {
 		this.conn = makeConnection();
 	}
 
-	private DBUtils() {
+	public DBUtils() {
 		this("db.properties");
 	}
 
@@ -83,28 +81,11 @@ public class DBUtils {
 		return this.conn;
 	}
 	
-	public static void closeConnection() {
+	public void closeConnection() {
 		try {
-			instance.conn.close();
+			conn.close();
 		} catch (SQLException e) {
 			LOGGER.debug(e);
 		}
-	}
-	
-	public static DBUtils connect() {
-		instance = new DBUtils();
-		return instance;
-	}
-
-	public static DBUtils connect(String properties) {
-		instance = new DBUtils(properties);
-		return instance;
-	}
-
-	public static DBUtils getInstance() {
-		if (instance == null) {
-			instance = new DBUtils();
-		}
-		return instance;
 	}
 }

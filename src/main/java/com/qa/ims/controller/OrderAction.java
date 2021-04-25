@@ -55,30 +55,4 @@ public enum OrderAction {
 			return action;
 		}
 	}
-	/**
-	 * Prints out all possible actions
-	 */
-//	public static void printActions() {
-//		for (OrderAction action : OrderAction.values()) {
-//			LOGGER.info(action.getDescription());
-//		}
-//	}
-
-	/**
-	 * Gets an action based on a users input. If user enters a non-specified
-	 * enumeration, it will ask for another input.
-	 * 
-	 * @return Action type
-	 */
-//	public static OrderAction getAction(Utils utils) {
-//		OrderAction action = null;
-//		do {
-//			try {
-//				action = OrderAction.valueOf(utils.getString().toUpperCase());
-//			} catch (IllegalArgumentException e) {
-//				LOGGER.error("Invalid selection please try again");
-//			}
-//		} while (action == null);
-//		return action;
-//	}
 }

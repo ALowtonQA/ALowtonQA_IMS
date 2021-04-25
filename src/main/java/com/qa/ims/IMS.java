@@ -9,48 +9,50 @@ import com.qa.ims.controller.CustomerController;
 import com.qa.ims.controller.ItemController;
 import com.qa.ims.controller.OrderAction;
 import com.qa.ims.controller.OrderController;
-import com.qa.ims.persistence.dao.CustomerDAO;
-import com.qa.ims.persistence.dao.ItemDAO;
-import com.qa.ims.persistence.dao.OrderDAO;
-import com.qa.ims.persistence.dao.OrderItemDAO;
 import com.qa.ims.persistence.domain.Domain;
 import com.qa.ims.utils.DBUtils;
 import com.qa.ims.utils.UI;
-import com.qa.ims.utils.Utils;
 
 public class IMS {
 
 	public static final Logger LOGGER = LogManager.getLogger();
-	public static final UI ui = new UI();
 	
 	private final CustomerController customers;
 	private final OrderController orders;
 	private final ItemController items;
-	private final Utils utils;
+	private final DBUtils dbu;
+	private final UI ui;
 
-	public IMS() {
-		this.utils = new Utils();
-		final CustomerDAO custDAO = new CustomerDAO();
-		final OrderItemDAO oiDAO = new OrderItemDAO();
-		final OrderDAO orderDAO = new OrderDAO();
-		final ItemDAO itemDAO = new ItemDAO();
-		this.customers = new CustomerController(custDAO, utils);
-		this.items = new ItemController(itemDAO, utils);
-		this.orders = new OrderController(orderDAO, oiDAO, customers, items, utils);
+	public IMS(DBUtils dbu, UI ui, CustomerController customers, ItemController items, OrderController orders) {
+		this.dbu = dbu;
+		this.ui = ui;
+		this.customers = customers;
+		this.items = items;
+		this.orders = orders;
 	}
 
+	/**
+	 * Setup and initial domain selection for the program.
+	 * 
+	 */
 	public void imsSystem() {
 		ui.welcome();
-		DBUtils.connect();	
+		if (ui.initDB())
+			dbu.init("src/main/resources/sql-schema.sql", "src/main/resources/sql-data.sql");
 		Domain domain = null;
 		do {
-			domain = ui.selectDomain(utils);
+			domain = ui.selectDomain();
 			domainAction(domain);
 		} while (domain != Domain.STOP);
-		DBUtils.closeConnection();
 		ui.exit();
 	}
 
+	/**
+	 * Present the user with options to choose from 
+	 * depending on the domain they have chosen.
+	 * 
+	 * @param domain - Takes in a domain.
+	 */
 	private void domainAction(Domain domain) {
 		boolean changeDomain = false;
 		do {
@@ -72,14 +74,14 @@ public class IMS {
 			}
 
 			if (domain == Domain.ORDER) {
-				OrderAction action = ui.selectOrderAction(utils);
+				OrderAction action = ui.selectOrderAction();
 				if (action == OrderAction.RETURN) {
 					changeDomain = true;
 				} else {
 					doOrderAction(this.orders, action);
 				}
 			} else {
-				Action action = ui.selectAction(utils, domain.name());	
+				Action action = ui.selectAction();	
 				if (action == Action.RETURN) {
 					changeDomain = true;
 				} else {
@@ -88,7 +90,14 @@ public class IMS {
 			}
 		} while (!changeDomain);
 	}
-
+	
+	/**
+	 * Performs the action the user has chosen on the domain
+	 * that they are currently in.
+	 * 
+	 * @param crudController - Takes in a CrudController object.
+	 * @param action - An action to perform.
+	 */
 	public void doAction(CrudController<?> crudController, Action action) {
 		switch (action) {
 		case CREATE:
@@ -110,6 +119,13 @@ public class IMS {
 		}
 	}
 
+	/**
+	 * Performs the action the user has chosen on the order
+	 * domain..
+	 * 
+	 * @param OrderController - Takes in an OrderController object.
+	 * @param action - An action to perform.
+	 */
 	public void doOrderAction(OrderController oc, OrderAction action) {
 		switch (action) {
 		case CREATE:

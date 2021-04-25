@@ -10,16 +10,20 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.qa.ims.IMS;
 import com.qa.ims.exceptions.ItemNotFoundException;
 import com.qa.ims.persistence.domain.Item;
-import com.qa.ims.utils.DBUtils;
+import com.qa.ims.utils.UI;
 
 public class ItemDAO implements Dao<Item> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
-	private final Connection conn = DBUtils.getInstance().getConnection();
+	private final Connection conn;
+	private final UI ui;
+	
+	public ItemDAO(UI ui, Connection conn) {
+		this.conn = conn;
+		this.ui = ui;
+	}
 
 	@Override
 	public Item modelFromResultSet(ResultSet resultSet) throws SQLException {
@@ -45,7 +49,7 @@ public class ItemDAO implements Dao<Item> {
 			return Items;
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return new ArrayList<>();
 	}
@@ -57,7 +61,7 @@ public class ItemDAO implements Dao<Item> {
 			return modelFromResultSet(resultSet);
 		} catch (Exception e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -77,7 +81,7 @@ public class ItemDAO implements Dao<Item> {
 			return readLatest();
 		} catch (Exception e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -94,10 +98,10 @@ public class ItemDAO implements Dao<Item> {
 			}
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		} catch (ItemNotFoundException infe) {
 			LOGGER.debug(infe);
-			LOGGER.error(IMS.ui.formatError("    "+infe.getMessage()+"      |"));
+			LOGGER.error(ui.formatError("    "+infe.getMessage()+"      |"));
 		}
 		return null;
 	}
@@ -120,7 +124,7 @@ public class ItemDAO implements Dao<Item> {
 			return read(Item.getId());
 		} catch (Exception e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -140,10 +144,10 @@ public class ItemDAO implements Dao<Item> {
 			return result;
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		} catch (ItemNotFoundException infe) {
 			LOGGER.debug(infe);
-			LOGGER.error(IMS.ui.formatError("    "+infe.getMessage()+"      |"));
+			LOGGER.error(ui.formatError("    "+infe.getMessage()+"      |"));
 		}
 		return 0;
 	}

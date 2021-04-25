@@ -1,13 +1,37 @@
-drop schema IF EXISTS ims;
+DROP SCHEMA IF EXISTS ims;
 
-CREATE SCHEMA IF NOT EXISTS `ims`;
+CREATE SCHEMA ims;
 
-USE `ims` ;
+USE ims ;
 
-CREATE TABLE IF NOT EXISTS `ims`.`customers` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `first_name` VARCHAR(40) DEFAULT NULL,
-    `surname` VARCHAR(40) DEFAULT NULL,
-    PRIMARY KEY (`id`)
+CREATE TABLE IF NOT EXISTS customers (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    first_name VARCHAR(40) DEFAULT NULL,
+    surname VARCHAR(40) DEFAULT NULL,
+    PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS items (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    item_name VARCHAR(80) DEFAULT NULL,
+    price DECIMAL(10,2),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    cust_id INT(11),
+    `date` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (cust_id) REFERENCES customers(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    order_id INT(11),
+	item_id INT(11),
+    quantity INT(11) DEFAULT 0,
+    PRIMARY KEY (id),
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+	FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+);

@@ -45,30 +45,4 @@ public enum Action {
 			return action;
 		}
 	}
-	/**
-	 * Prints out all possible actions
-	 */
-//	public static void printActions() {
-//		for (Action action : Action.values()) {
-//			LOGGER.info(action.getDescription());
-//		}
-//	}
-
-	/**
-	 * Gets an action based on a users input. If user enters a non-specified
-	 * enumeration, it will ask for another input.
-	 * 
-	 * @return Action type
-	 */
-//	public static Action getAction(Utils utils) {
-//		Action action = null;
-//		do {
-//			try {
-//				action = Action.valueOf(utils.getString().toUpperCase());
-//			} catch (IllegalArgumentException e) {
-//				LOGGER.error("Invalid selection please try again");
-//			}
-//		} while (action == null);
-//		return action;
-//	}
 }

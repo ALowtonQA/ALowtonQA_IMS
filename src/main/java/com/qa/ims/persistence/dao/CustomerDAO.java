@@ -10,16 +10,20 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.qa.ims.IMS;
 import com.qa.ims.exceptions.CustomerNotFoundException;
 import com.qa.ims.persistence.domain.Customer;
-import com.qa.ims.utils.DBUtils;
+import com.qa.ims.utils.UI;
 
 public class CustomerDAO implements Dao<Customer> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
-	private final Connection conn = DBUtils.getInstance().getConnection();
+	private final Connection conn;
+	private final UI ui;
+
+	public CustomerDAO(UI ui, Connection conn) {
+		this.conn = conn;
+		this.ui = ui;
+	}
 
 	@Override
 	public Customer modelFromResultSet(ResultSet resultSet) throws SQLException {
@@ -45,7 +49,7 @@ public class CustomerDAO implements Dao<Customer> {
 			return customers;
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return new ArrayList<>();
 	}
@@ -57,7 +61,7 @@ public class CustomerDAO implements Dao<Customer> {
 			return modelFromResultSet(resultSet);
 		} catch (Exception e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -77,7 +81,7 @@ public class CustomerDAO implements Dao<Customer> {
 			return readLatest();
 		} catch (Exception e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -94,10 +98,10 @@ public class CustomerDAO implements Dao<Customer> {
 			}
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(IMS.ui.formatError(e.getMessage()));
+			LOGGER.error(ui.formatError(e.getMessage()));
 		} catch (CustomerNotFoundException cnfe) {
 			LOGGER.debug(cnfe);
-			LOGGER.error(IMS.ui.formatError("   "+cnfe.getMessage()+"    |"));
+			LOGGER.error(ui.formatError("   "+cnfe.getMessage()+"    |"));
 		}
 		return null;
 	}
@@ -121,7 +125,7 @@ public class CustomerDAO implements Dao<Customer> {
 			return read(customer.getId());
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -141,10 +145,10 @@ public class CustomerDAO implements Dao<Customer> {
 			return result;
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		} catch (CustomerNotFoundException cnfe) {
 			LOGGER.debug(cnfe);
-			LOGGER.error(IMS.ui.formatError("   "+cnfe.getMessage()+"    |"));
+			LOGGER.error(ui.formatError("   "+cnfe.getMessage()+"    |"));
 		}
 		return 0;
 	}

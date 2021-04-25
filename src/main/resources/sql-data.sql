@@ -1,1 +1,15 @@
-INSERT INTO `ims`.`customers` (`first_name`, `surname`) VALUES ('jordan', 'harrison');
+INSERT INTO ims.customers (first_name, surname) VALUES ('jordan', 'harrison');
+INSERT INTO ims.customers (first_name, surname) VALUES ('bob', 'smith');
+INSERT INTO ims.customers (first_name, surname) VALUES ('tom', 'jones');
+INSERT INTO ims.items (item_name, price) VALUES ('Titanic', 9.99);
+INSERT INTO ims.items (item_name, price) VALUES ('Inception', 10.99);
+INSERT INTO ims.items (item_name, price) VALUES ('The Godfather', 8.99);
+INSERT INTO ims.orders (cust_id) VALUES (1);
+INSERT INTO ims.orders (cust_id) VALUES (2);
+INSERT INTO ims.orders (cust_id) VALUES (3);
+INSERT INTO ims.order_items (order_id, item_id, quantity) VALUES (1, 1, 2);
+INSERT INTO ims.order_items (order_id, item_id, quantity) VALUES (1, 2, 1);
+INSERT INTO ims.order_items (order_id, item_id, quantity) VALUES (1, 3, 1);
+INSERT INTO ims.order_items (order_id, item_id, quantity) VALUES (2, 1, 1);
+INSERT INTO ims.order_items (order_id, item_id, quantity) VALUES (2, 3, 1);
+INSERT INTO ims.order_items (order_id, item_id, quantity) VALUES (3, 3, 3);

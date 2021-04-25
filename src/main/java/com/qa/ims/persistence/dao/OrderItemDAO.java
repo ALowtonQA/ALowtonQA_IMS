@@ -10,17 +10,21 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.qa.ims.IMS;
 import com.qa.ims.exceptions.OrderItemNotFoundException;
 import com.qa.ims.persistence.domain.OrderItem;
-import com.qa.ims.utils.DBUtils;
+import com.qa.ims.utils.UI;
 
 public class OrderItemDAO implements Dao<OrderItem> {
 
 	public static final Logger LOGGER = LogManager.getLogger();
-	private final Connection conn = DBUtils.getInstance().getConnection();
+	private final Connection conn;
+	private final UI ui;
 	
+	public OrderItemDAO(UI ui, Connection conn) {
+		this.conn = conn;
+		this.ui = ui;
+	}
+
 	@Override
 	public OrderItem modelFromResultSet(ResultSet resultSet) throws SQLException {
 		Long id = resultSet.getLong("id");
@@ -58,7 +62,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 			return order_items;
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return new ArrayList<>();
 	}
@@ -87,7 +91,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 			}
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return new ArrayList<>();
 	}
@@ -104,7 +108,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 			return modelForSpecificOrder(resultSet);
 		} catch (Exception e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -123,9 +127,9 @@ public class OrderItemDAO implements Dao<OrderItem> {
 			statement.setLong(3, order.getQuantity());
 			statement.executeUpdate();
 			return readLatest();
-		} catch (SQLException sqle) {
-			LOGGER.debug(sqle);
-			LOGGER.error(sqle.getMessage());
+		} catch (SQLException e) {
+			LOGGER.debug(e);
+			LOGGER.error(ui.formatError(e.getMessage()));
 		}
 		return null;
 	}
@@ -147,10 +151,10 @@ public class OrderItemDAO implements Dao<OrderItem> {
 			return result;
 		} catch (SQLException e) {
 			LOGGER.debug(e);
-			LOGGER.error(e.getMessage());
+			LOGGER.error(ui.formatError(e.getMessage()));
 		} catch (OrderItemNotFoundException oinfe) {
 			LOGGER.debug(oinfe);
-			LOGGER.error(IMS.ui.formatError(" "+oinfe.getMessage()+"   |"));
+			LOGGER.error(ui.formatError(" "+oinfe.getMessage()+"   |"));
 		}
 		return 0;
 	}
