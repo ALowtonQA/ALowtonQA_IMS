@@ -63,21 +63,21 @@ Download the *mysql-installer-community-8.0.24.0.msi*
 Complete the setup wizard, making sure to select MySQL server.  
 All default options are fine, with a default password of **root** for the server  
 
-### Installing
+## Installing
 
-#### Clone the project from GitHub
+### Clone the project from GitHub
 
 Use the following command to clone this repository to your local machine:  
 ```git clone https://github.com/ALowtonQA/ALowtonQA_assessment.git```  
 
-#### Import the project to Eclipse as an existing Maven project  
+### Import the project to Eclipse as an existing Maven project  
 
 In Eclipse, choose *File > Import*.  
 Then, under **Maven** choose **Existing Maven Project**.  
 Select the previously imported repository as the root directory.  
 Ensure the *pom.xml* file is visible and selected, then click Import.  
 
-#### Run the Application
+### Run the Application
 
 To run the application from Eclipse, simply right click the project folder in the hierarchical view on the left and *Right click > Run as > Java Application*  
 
