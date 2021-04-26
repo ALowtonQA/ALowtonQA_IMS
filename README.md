@@ -24,7 +24,7 @@ Typically, the full path is:
 ```C:\Program Files\Java\jdk-16\bin```
 
 To verify your JDK installation, launch a command prompt window and type:  
-```javac - version``` 
+```javac - version```  
 And  
 ```java -version```  
 
