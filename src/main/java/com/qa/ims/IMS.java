@@ -38,7 +38,7 @@ public class IMS {
 	public void imsSystem() {
 		ui.welcome();
 		if (ui.initDB())
-			dbu.init("src/main/resources/sql-schema.sql", "src/main/resources/sql-data.sql");
+			dbu.init("/sql-schema.sql", "/sql-data.sql");
 		Domain domain = null;
 		do {
 			domain = ui.selectDomain();

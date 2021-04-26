@@ -119,12 +119,12 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	 * @param order - takes in a order object. id will be ignored
 	 */
 	@Override
-	public OrderItem create(OrderItem order) {
+	public OrderItem create(OrderItem orderItem) {
 		try (PreparedStatement statement = conn
 				.prepareStatement("INSERT INTO order_items(order_id, item_id, quantity) VALUES (?, ?, ?)")) {
-			statement.setLong(1, order.getOrderId());
-			statement.setLong(2, order.getItemId());
-			statement.setLong(3, order.getQuantity());
+			statement.setLong(1, orderItem.getOrderId());
+			statement.setLong(2, orderItem.getItemId());
+			statement.setLong(3, orderItem.getQuantity());
 			statement.executeUpdate();
 			return readLatest();
 		} catch (SQLException e) {
@@ -167,7 +167,7 @@ public class OrderItemDAO implements Dao<OrderItem> {
 	 * @return
 	 */
 	@Override
-	public OrderItem update(OrderItem order) {
+	public OrderItem update(OrderItem orderItem) {
 //		try (PreparedStatement statement = conn
 //						.prepareStatement("UPDATE order_items SET order_id = ?, item_id = ?, quantity = ? WHERE id = ?")) {
 //			statement.setLong(1, order.getOrderId());

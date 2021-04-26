@@ -35,7 +35,6 @@ public class CustomerDAO implements Dao<Customer> {
 
 	/**
 	 * Reads all customers from the database
-	 * 
 	 * @return A list of customers
 	 */
 	@Override
@@ -54,6 +53,10 @@ public class CustomerDAO implements Dao<Customer> {
 		return new ArrayList<>();
 	}
 
+	/**
+	 * Reads latest customer from the database
+	 * @return A Customer object
+	 */
 	public Customer readLatest() {
 		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery("SELECT * FROM customers ORDER BY id DESC LIMIT 1")) {
@@ -68,8 +71,8 @@ public class CustomerDAO implements Dao<Customer> {
 
 	/**
 	 * Creates a customer in the database
-	 * 
-	 * @param customer - takes in a customer object. id will be ignored
+	 * @param customer - Takes in a customer object. ID not needed, SQL is auto increment.
+	 * @return A Customer object
 	 */
 	@Override
 	public Customer create(Customer customer) {
@@ -86,6 +89,12 @@ public class CustomerDAO implements Dao<Customer> {
 		return null;
 	}
 
+	/**
+	 * Reads a customer from the database
+	 * @param id - Takes in an ID for a customer to read
+	 * @return A Customer object
+	 * @throws CustomerNotFoundException
+	 */
 	@Override
 	public Customer read(Long id) {
 		try (PreparedStatement statement = conn.prepareStatement("SELECT * FROM customers WHERE id = ?")) {
@@ -108,11 +117,8 @@ public class CustomerDAO implements Dao<Customer> {
 
 	/**
 	 * Updates a customer in the database
-	 * 
-	 * @param customer - takes in a customer object, the id field will be used to
-	 *                 update that customer in the database
-	 * @return
-	 * @throws CustomerNotFoundException 
+	 * @param customer - takes in a customer object, the id field will be used to update that customer in the database
+	 * @return A customer object
 	 */
 	@Override
 	public Customer update(Customer customer) {
@@ -132,8 +138,9 @@ public class CustomerDAO implements Dao<Customer> {
 
 	/**
 	 * Deletes a customer in the database
-	 * 
 	 * @param id - id of the customer
+	 * @return int representing number of rows affected by delete. (Should be 1 or 0)
+	 * @throws CustomerNotFoundException
 	 */
 	@Override
 	public int delete(long id) {

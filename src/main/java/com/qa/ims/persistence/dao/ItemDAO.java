@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import com.qa.ims.exceptions.ItemNotFoundException;
 import com.qa.ims.persistence.domain.Item;
 import com.qa.ims.utils.UI;
@@ -35,7 +36,6 @@ public class ItemDAO implements Dao<Item> {
 
 	/**
 	 * Reads all Items from the database
-	 * 
 	 * @return A list of Items
 	 */
 	@Override
@@ -53,7 +53,11 @@ public class ItemDAO implements Dao<Item> {
 		}
 		return new ArrayList<>();
 	}
-
+	
+	/**
+	 * Reads latest item from the database
+	 * @return An Item object
+	 */
 	public Item readLatest() {
 		try (Statement statement = conn.createStatement();
 				ResultSet resultSet = statement.executeQuery("SELECT * FROM items ORDER BY id DESC LIMIT 1")) {
@@ -67,9 +71,9 @@ public class ItemDAO implements Dao<Item> {
 	}
 
 	/**
-	 * Creates a Item in the database
-	 * 
-	 * @param Item - takes in a Item object. id will be ignored
+	 * Creates an item in the database
+	 * @param item - Takes in an item object used to insert entry in database
+	 * @return An Item object
 	 */
 	@Override
 	public Item create(Item Item) {
@@ -85,7 +89,13 @@ public class ItemDAO implements Dao<Item> {
 		}
 		return null;
 	}
-
+	
+	/**
+	 * Reads an item from the database
+	 * @param id - Takes in an ID for an item to read
+	 * @return An Item object
+	 * @throws ItemNotFoundException
+	 */
 	@Override
 	public Item read(Long id) {
 		try (PreparedStatement statement = conn.prepareStatement("SELECT * FROM items WHERE id = ?")) {
@@ -108,10 +118,8 @@ public class ItemDAO implements Dao<Item> {
 
 	/**
 	 * Updates a Item in the database
-	 * 
-	 * @param Item - takes in a Item object, the id field will be used to
-	 *                 update that Item in the database
-	 * @return
+	 * @param Item - takes in a Item object, the id field will be used to update that Item in the database
+	 * @return An Item object.
 	 */
 	@Override
 	public Item update(Item Item) {
@@ -130,9 +138,9 @@ public class ItemDAO implements Dao<Item> {
 	}
 
 	/**
-	 * Deletes a Item in the database
-	 * 
+	 * Deletes an Item in the database
 	 * @param id - id of the Item
+	 * @return int representing number of rows affected by delete. (Should be 1 or 0)
 	 */
 	@Override
 	public int delete(long id) {

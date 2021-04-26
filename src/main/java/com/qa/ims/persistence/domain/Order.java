@@ -84,7 +84,7 @@ public class Order {
 			datefmt = fmt.format(date);
 		return (total == null)?
 			String.format("|Order ID   |%s%n|Customer   |%s%n|Order Date |%s", id, customerName, datefmt):
-			String.format("|Order ID   |%s%n|Customer   |%s%n|Order Date |%s%n|Total      |£%s", id, customerName, datefmt, total);
+			String.format("|Order ID   |%s%n|Customer   |%s%n|Order Date |%s%n|Total      |%s", id, customerName, datefmt, total);
 	}
 
 	@Override

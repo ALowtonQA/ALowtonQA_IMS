@@ -36,7 +36,7 @@ public class Runner {
 		final OrderController orders = new OrderController(orderDAO, oiDAO, customers, items, utils, ui);
 		
 		// System
-		IMS ims = new IMS(dbu, ui, customers, items, orders);
+		final IMS ims = new IMS(dbu, ui, customers, items, orders);
 		ims.imsSystem();
 		
 		// Cleanup

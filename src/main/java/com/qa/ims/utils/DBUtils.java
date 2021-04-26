@@ -1,8 +1,8 @@
 package com.qa.ims.utils;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -39,6 +39,10 @@ public class DBUtils {
 		this("db.properties");
 	}
 
+	/**
+	 * @param paths - file paths as strings to execute
+	 * @return int representing the row count of affected rows
+	 */
 	public int init(String... paths) {
 		int modified = 0;
 
@@ -51,7 +55,8 @@ public class DBUtils {
 
 	public int executeSQLFile(String file) {
 		int modified = 0;
-		try (BufferedReader br = new BufferedReader(new FileReader(file));) {
+		try (InputStream in = DBUtils.class.getResourceAsStream(file);
+				BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
 			String fileAsString = br.lines().reduce((acc, next) -> acc + next).orElse("");
 			String[] queries = fileAsString.split(";");
 			modified += Stream.of(queries).map(string -> {
@@ -67,7 +72,10 @@ public class DBUtils {
 		}
 		return modified;
 	}
-
+	
+	/**
+	 * @return New connection to the database
+	 */
 	public Connection makeConnection() {
 		try {
 			return DriverManager.getConnection(dbUrl, dbUser, dbPassword);
@@ -76,11 +84,17 @@ public class DBUtils {
 			return null;
 		}
 	}
-
+	
+	/**
+	 * @return Current connection to the database
+	 */
 	public Connection getConnection() {
 		return this.conn;
 	}
 	
+	/**
+	 * Closes the connection to the database
+	 */
 	public void closeConnection() {
 		try {
 			conn.close();
