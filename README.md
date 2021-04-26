@@ -12,7 +12,7 @@ These instructions will get you a copy of the project up and running on your loc
 #### Java 
 Go to this link [download JDK](https://www.oracle.com/java/technologies/javase-jdk16-downloads.html)  
 Click the Download link that corresponds to the .exe for your version of Windows.  
-*e.g. jdk-16.0.1_windows-x64_bin.exe*  
+```e.g. jdk-16.0.1_windows-x64_bin.exe```
 
 Run the installer with admin priveleges and follow the instructions.  
 Check if the installer set the *PATH* veriable for you, as JDK15+ does this automatically.  
@@ -21,12 +21,12 @@ To set the *PATH* variable, browse to **Control Panel** and then **System.**
 Click **Advanced** and then **Environment Variables.**  
 Add the location of the *bin* folder of your JDK installation to the **PATH** variable in **System Variables.**  
 Typically, the full path is:  
-*C:\Program Files\Java\jdk-16\bin*  
+```C:\Program Files\Java\jdk-16\bin```
 
 To verify your JDK installation, launch a command prompt window and type:  
-*javac - version*  
+```javac - version``` 
 And  
-*java -version*  
+```java -version```  
 
 If you don't get a successful response from these commands, you will need to return to the installation process.  
 
@@ -34,11 +34,11 @@ If you don't get a successful response from these commands, you will need to ret
 
 Go to this link [download Maven](https://maven.apache.org/download.cgi)  
 Click the Binary zip archive download under 'Files'.  
-*e.g. apache-maven-3.8.1-bin.zip*  
+```e.g. apache-maven-3.8.1-bin.zip```  
 
 Once that has downloaded, unzip it into your C:\Program Files folder.  
 Copy the path for the installation.  
-*e.g. C:\Program Files\apache-maven-3.6.3*  
+```e.g. C:\Program Files\apache-maven-3.6.3```  
 
 To set the *PATH* variable, browse to **Control Panel** and then **System.**  
 Click **Advanced** and then **Environment Variables.**  
@@ -46,7 +46,7 @@ Add a new system variable using that path, with the name **M2_HOME** or somethin
 Finally, add **%M2_HOME%\bin** to the **PATH** variable.  
 
 To verify the Maven installation, launch a command prompt window and type:  
-*mvn -version*
+```mvn -version```
 
 If you don't get a successful response from the command, you will need to return to the installation process.
 
@@ -70,7 +70,7 @@ A step by step series of examples that tell you how to get a development env run
 #### Clone the project from GitHub
 
 Use the following command to clone this repository to your local machine:  
-*git clone https://github.com/ALowtonQA/ALowtonQA_assessment.git*  
+```git clone https://github.com/ALowtonQA/ALowtonQA_assessment.git```  
 
 #### Import the project to Eclipse as an existing Maven project  
 
@@ -87,7 +87,7 @@ You will now be able to give user input to the program through the Console locat
 
 To run the application from your command line, browse to the root folder of the project using a command prompt.  
 Then execute the following command:  
-*java -jar ims-0.0.1-jar-with-dependencies.jar*  
+```java -jar ims-0.0.1-jar-with-dependencies.jar``` 
 
 ## Running the tests
 
