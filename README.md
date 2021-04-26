@@ -65,8 +65,6 @@ All default options are fine, with a default password of **root** for the server
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running  
-
 #### Clone the project from GitHub
 
 Use the following command to clone this repository to your local machine:  
