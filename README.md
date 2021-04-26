@@ -15,7 +15,7 @@ Click the Download link that corresponds to the .exe for your version of Windows
 ```e.g. jdk-16.0.1_windows-x64_bin.exe```
 
 Run the installer with admin priveleges and follow the instructions.  
-Check if the installer set the *PATH* veriable for you, as JDK15+ does this automatically.  
+Check if the installer set the *PATH* variable for you, as JDK15+ does this automatically.  
 
 To set the *PATH* variable, browse to **Control Panel** and then **System.**  
 Click **Advanced** and then **Environment Variables.**  
