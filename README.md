@@ -102,6 +102,10 @@ Browse to the *src/test/java/com.qa.ims.controller* package using the hierarchic
 Locate the *CustomerControllerTest* file and *Right click > Run as > JUnit Test*  
 This will unit test the Customer Controller class in isolation, by testing each method functions correctly.  
 
+## Project Management Board
+
+* [Jira Board](https://anoushlowtonqa.atlassian.net/jira/software/projects/ALQA/boards/3/)
+
 ## Built With
 
 * [Maven](https://maven.apache.org/) - Dependency Management
