@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 #### Java 
-Go to this link [download JDK.] (https://www.oracle.com/java/technologies/javase-jdk16-downloads.html)
+Go to this link [download JDK](https://www.oracle.com/java/technologies/javase-jdk16-downloads.html)
 Click the Download link that corresponds to the .exe for your version of Windows.
 *e.g. jdk-16.0.1_windows-x64_bin.exe*
 
@@ -32,7 +32,7 @@ If you don't get a successful response from these commands, you will need to ret
 
 #### Maven
 
-Go to this link [download Maven.] (https://maven.apache.org/download.cgi)
+Go to this link [download Maven](https://maven.apache.org/download.cgi)
 Click the Binary zip archive download under 'Files'.
 *e.g. apache-maven-3.8.1-bin.zip*
 
@@ -52,13 +52,13 @@ If you don't get a successful response from the command, you will need to return
 
 #### Eclipse
 
-Go to this link [download Eclipse.] (https://www.eclipse.org/downloads/)
+Go to this link [download Eclipse](https://www.eclipse.org/downloads/)
 Download the X86_64 executable.
 Run the .exe and complete the setup wizard to install Eclipse, default/java options are fine throughout.
 
 #### MySQL Server
 
-Go to this link [download MySQL.] (https://dev.mysql.com/downloads/windows/installer/8.0.html)
+Go to this link [download MySQL](https://dev.mysql.com/downloads/windows/installer/8.0.html)
 Download the *mysql-installer-community-8.0.24.0.msi*
 Complete the setup wizard, making sure to select MySQL server.
 All default options are fine, with a default password of **root** for the server
